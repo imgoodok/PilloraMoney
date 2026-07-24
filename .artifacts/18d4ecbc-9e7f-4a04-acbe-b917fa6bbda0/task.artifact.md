@@ -1,0 +1,28 @@
+# Tasks - PilloraMoney App Implementation
+
+- [x] Project Configuration & Setup
+    - [x] Update `libs.versions.toml` with dependencies (Navigation, Room, Hilt, Icons)
+    - [x] Update `app/build.gradle.kts` and sync
+    - [x] Create package structure
+- [x] Data Layer (Local DB)
+    - [x] Create Entities (`Transaction`, `CalculatorItem`)
+    - [x] Create DAOs
+    - [x] Setup `AppDatabase` and Hilt module for DI
+- [ ] ViewModels
+    - [ ] `HomeViewModel`
+    - [ ] `SpreadsheetViewModel`
+    - [ ] `CalculatorViewModel`
+- [ ] UI Components
+    - [ ] Custom `PilloraBottomBar` (5 items + central FAB)
+    - [ ] `PilloraDrawer` (Side menu)
+    - [ ] Spreadsheet Table components
+- [ ] Screens
+    - [ ] `HomeScreen` (Dashboard)
+    - [ ] `SpreadsheetScreen` (Smart spreadsheet)
+    - [ ] `CalculatorScreen` (Daily expense calc)
+- [ ] Navigation & Integration
+    - [ ] Define Routes and `NavHost`
+    - [ ] Integrate everything in `MainActivity`
+- [ ] Verification
+    - [ ] Build and run
+    - [ ] Manual test of flows

@@ -1,0 +1,21 @@
+package com.example.pilloramoney.data.local
+
+import androidx.room.*
+import com.example.pilloramoney.data.model.Transaction
+import com.example.pilloramoney.data.model.TransactionType
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface TransactionDao {
+    @Query("SELECT * FROM transactions WHERE date >= :startDate AND date <= :endDate")
+    fun getTransactionsInRange(startDate: Long, endDate: Long): Flow<List<Transaction>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTransaction(transaction: Transaction)
+
+    @Delete
+    suspend fun deleteTransaction(transaction: Transaction)
+
+    @Query("SELECT * FROM transactions WHERE isRecurring = 1")
+    suspend fun getRecurringTransactions(): List<Transaction>
+}
