@@ -1,24 +1,35 @@
 package com.example.pilloramoney.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pilloramoney.data.model.CalculatorItem
 import com.example.pilloramoney.data.model.Frequency
+import com.example.pilloramoney.ui.theme.*
 import com.example.pilloramoney.ui.viewmodels.CalculatorViewModel
+import kotlinx.coroutines.launch
+import java.util.*
 
 @Composable
 fun CalculatorScreen(
@@ -26,57 +37,123 @@ fun CalculatorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            text = "Calculadora de Gastos Diários",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Converta seus gastos recorrentes em uma média diária.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Average Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "Média Diária Estimada", style = MaterialTheme.typography.labelLarge)
+            // Header
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = String.format("R$ %.2f", uiState.dailyAverage),
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    text = "Calculadora Diária",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Consolide seus gastos recorrentes",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "Sua Lista de Gastos", style = MaterialTheme.typography.titleMedium)
-            Button(onClick = { showAddDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Adicionar")
+            // Summary Statistics (Full Width)
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("MÉDIA DIÁRIA TOTAL", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "R$ ${String.format(Locale.getDefault(), "%.2f", uiState.dailyAverage)}",
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Total Mensal: R$ ${String.format(Locale.getDefault(), "%.2f", uiState.monthlyEquivalent)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(
+                                onClick = { 
+                                    viewModel.applyToProjection()
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Valor aplicado à projeção!")
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("Aplicar à Projeção", fontSize = 12.sp)
+                            }
+                            OutlinedButton(
+                                onClick = { 
+                                    viewModel.clearProjection()
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Lançamentos removidos.")
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                            ) {
+                                Text("Limpar Projeção", fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(uiState.items) { item ->
-                CalculatorItemRow(item, onDelete = { viewModel.deleteItem(it) })
+            // List Section
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Suas Categorias", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                IconButton(onClick = { showAddDialog = true }) {
+                    Icon(Icons.Default.Add, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                }
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(uiState.items) { item ->
+                    CalculatorItemCard(item, onDelete = { viewModel.deleteItem(item) })
+                }
+                
+                if (uiState.items.isEmpty()) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                            Text("Adicione gastos para calcular a média", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+                
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }
@@ -93,32 +170,61 @@ fun CalculatorScreen(
 }
 
 @Composable
-fun CalculatorItemRow(item: CalculatorItem, onDelete: (CalculatorItem) -> Unit) {
+fun CalculatorItemCard(item: CalculatorItem, onDelete: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Calculate, contentDescription = null, modifier = Modifier.size(20.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = item.name, fontWeight = FontWeight.Bold)
+                Text(item.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    text = "${String.format("%.2f", item.value)} (${item.frequency.name})",
-                    style = MaterialTheme.typography.bodySmall
+                    text = "${translateFrequency(item.frequency)} • R$ ${String.format(Locale.getDefault(), "%.2f", item.value)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Text(
-                text = String.format("R$ %.2f/dia", item.dailyValue),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
-            IconButton(onClick = { onDelete(item) }) {
-                Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = MaterialTheme.colorScheme.error)
+
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "R$ ${String.format(Locale.getDefault(), "%.2f", item.dailyValue)}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text("por dia", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+            
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = ErrorRed, modifier = Modifier.size(20.dp))
             }
         }
     }
+}
+
+fun translateFrequency(freq: Frequency): String = when(freq) {
+    Frequency.DAILY -> "Diário"
+    Frequency.WEEKLY -> "Semanal"
+    Frequency.MONTHLY -> "Mensal"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,13 +239,13 @@ fun AddCalculatorItemDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Novo Gasto") },
+        title = { Text("Novo Gasto para Cálculo") },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome do gasto (ex: Aluguel)") },
+                    label = { Text("Categoria (ex: Aluguel)") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -151,13 +257,14 @@ fun AddCalculatorItemDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Frequência", style = MaterialTheme.typography.labelLarge)
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    Frequency.values().forEach { freq ->
+                Text("Frequência do Valor", style = MaterialTheme.typography.labelMedium)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Frequency.entries.forEach { freq ->
+                        val isSelected = frequency == freq
                         FilterChip(
-                            selected = frequency == freq,
+                            selected = isSelected,
                             onClick = { frequency = freq },
-                            label = { Text(freq.name) }
+                            label = { Text(translateFrequency(freq)) }
                         )
                     }
                 }
@@ -168,13 +275,11 @@ fun AddCalculatorItemDialog(
                 val v = value.toDoubleOrNull() ?: 0.0
                 onConfirm(name, v, frequency)
             }) {
-                Text("Salvar")
+                Text("Adicionar")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
-            }
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
     )
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.pilloramoney.data.local.AppDatabase
 import com.example.pilloramoney.data.local.CalculatorDao
+import com.example.pilloramoney.data.local.MonthlyBalanceDao
 import com.example.pilloramoney.data.local.TransactionDao
 import dagger.Module
 import dagger.Provides
@@ -23,7 +24,9 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "pillora_money_db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration() // Reset DB on version change for development
+        .build()
     }
 
     @Provides
@@ -31,4 +34,7 @@ object DatabaseModule {
 
     @Provides
     fun provideCalculatorDao(db: AppDatabase): CalculatorDao = db.calculatorDao()
+
+    @Provides
+    fun provideMonthlyBalanceDao(db: AppDatabase): MonthlyBalanceDao = db.monthlyBalanceDao()
 }

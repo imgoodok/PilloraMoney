@@ -1,28 +1,15 @@
-# Tasks - PilloraMoney App Implementation
+# Tasks - Advanced Dashboard & Calculator Integration
 
-- [x] Project Configuration & Setup
-    - [x] Update `libs.versions.toml` with dependencies (Navigation, Room, Hilt, Icons)
-    - [x] Update `app/build.gradle.kts` and sync
-    - [x] Create package structure
-- [x] Data Layer (Local DB)
-    - [x] Create Entities (`Transaction`, `CalculatorItem`)
-    - [x] Create DAOs
-    - [x] Setup `AppDatabase` and Hilt module for DI
-- [ ] ViewModels
-    - [ ] `HomeViewModel`
-    - [ ] `SpreadsheetViewModel`
-    - [ ] `CalculatorViewModel`
-- [ ] UI Components
-    - [ ] Custom `PilloraBottomBar` (5 items + central FAB)
-    - [ ] `PilloraDrawer` (Side menu)
-    - [ ] Spreadsheet Table components
-- [ ] Screens
-    - [ ] `HomeScreen` (Dashboard)
-    - [ ] `SpreadsheetScreen` (Smart spreadsheet)
-    - [ ] `CalculatorScreen` (Daily expense calc)
-- [ ] Navigation & Integration
-    - [ ] Define Routes and `NavHost`
-    - [ ] Integrate everything in `MainActivity`
+- [ ] Data Layer & Repository Logic
+    - [ ] Update `TransactionDao` with specific delete query
+    - [ ] Implement `applyCalculatorValueToProjection` in `TransactionRepository`
+    - [ ] Implement `clearCalculatorProjection` in `TransactionRepository`
+- [ ] ViewModel Enhancements
+    - [ ] Update `CalculatorViewModel` with apply/clear actions
+    - [ ] Update `HomeViewModel` with new dashboard metrics
+- [ ] UI Refinement
+    - [ ] Add Apply/Remove buttons to `CalculatorScreen`
+    - [ ] Redesign `HomeScreen` based on professional metrics screenshot
 - [ ] Verification
-    - [ ] Build and run
-    - [ ] Manual test of flows
+    - [ ] Test applying calculator average to spreadsheet
+    - [ ] Verify metrics calculation on Dashboard

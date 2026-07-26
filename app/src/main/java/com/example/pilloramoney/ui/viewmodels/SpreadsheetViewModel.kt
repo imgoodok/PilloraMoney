@@ -2,61 +2,91 @@ package com.example.pilloramoney.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pilloramoney.data.local.MonthlyBalanceDao
 import com.example.pilloramoney.data.local.TransactionDao
+import com.example.pilloramoney.data.model.MonthlyBalance
 import com.example.pilloramoney.data.model.Transaction
 import com.example.pilloramoney.data.model.TransactionType
+import com.example.pilloramoney.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 data class SpreadsheetUiState(
     val currentMonth: Calendar = Calendar.getInstance(),
     val transactions: List<Transaction> = emptyList(),
+    val initialBalance: Double = 0.0,
     val isLoading: Boolean = false
 )
 
 @HiltViewModel
 class SpreadsheetViewModel @Inject constructor(
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val monthlyBalanceDao: MonthlyBalanceDao,
+    private val transactionRepository: TransactionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SpreadsheetUiState())
     val uiState: StateFlow<SpreadsheetUiState> = _uiState.asStateFlow()
 
+    private val monthFormatter = SimpleDateFormat("yyyy-MM", Locale.US)
+
     init {
-        loadTransactions()
+        loadData()
     }
 
     fun nextMonth() {
         val next = _uiState.value.currentMonth.clone() as Calendar
         next.add(Calendar.MONTH, 1)
         _uiState.update { it.copy(currentMonth = next) }
-        loadTransactions()
+        loadData()
     }
 
     fun previousMonth() {
         val prev = _uiState.value.currentMonth.clone() as Calendar
         prev.add(Calendar.MONTH, -1)
         _uiState.update { it.copy(currentMonth = prev) }
-        loadTransactions()
+        loadData()
     }
 
-    private fun loadTransactions() {
+    private fun loadData() {
         val calendar = _uiState.value.currentMonth
+        val monthKey = monthFormatter.format(calendar.time)
+
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
         val start = calendar.timeInMillis
         
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
         calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
         val end = calendar.timeInMillis
 
         viewModelScope.launch {
+            // Load Initial Balance
+            val balance = monthlyBalanceDao.getBalanceForMonth(monthKey)?.initialBalance ?: 0.0
+            _uiState.update { it.copy(initialBalance = balance) }
+
+            // Load Transactions
             transactionDao.getTransactionsInRange(start, end).collect { list ->
                 _uiState.update { it.copy(transactions = list) }
             }
+        }
+    }
+
+    fun updateInitialBalance(value: Double) {
+        val monthKey = monthFormatter.format(_uiState.value.currentMonth.time)
+        viewModelScope.launch {
+            monthlyBalanceDao.upsertBalance(MonthlyBalance(monthKey, value))
+            _uiState.update { it.copy(initialBalance = value) }
         }
     }
 
@@ -65,26 +95,27 @@ class SpreadsheetViewModel @Inject constructor(
         type: TransactionType,
         value: Double,
         description: String,
-        replicateFuture: Boolean
+        repetition: String,
+        numRepetitions: Int = 1
     ) {
         viewModelScope.launch {
             val calendar = _uiState.value.currentMonth.clone() as Calendar
             calendar.set(Calendar.DAY_OF_MONTH, day)
             
-            val transaction = Transaction(
+            transactionRepository.saveTransactionWithRepetition(
+                description = description,
+                value = value,
                 date = calendar.timeInMillis,
                 type = type,
-                value = value,
-                description = description,
-                isRecurring = replicateFuture,
-                dayOfMonth = if (replicateFuture) day else null
+                repetition = repetition,
+                numRepetitions = numRepetitions
             )
-            transactionDao.insertTransaction(transaction)
-            
-            if (replicateFuture) {
-                // In a real app, we might handle this with a worker or a more complex sync
-                // For now, we'll just mark it as recurring in the DB
-            }
+        }
+    }
+
+    fun deleteTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            transactionDao.deleteTransaction(transaction)
         }
     }
 }

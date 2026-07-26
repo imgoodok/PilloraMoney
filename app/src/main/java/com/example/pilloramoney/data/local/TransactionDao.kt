@@ -18,4 +18,16 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transactions WHERE isRecurring = 1")
     suspend fun getRecurringTransactions(): List<Transaction>
+
+    @Query("SELECT * FROM transactions ORDER BY date DESC LIMIT 100")
+    fun getLatestTransactions(): Flow<List<Transaction>>
+
+    @Query("DELETE FROM transactions")
+    suspend fun deleteAll()
+
+    @Query("DELETE FROM transactions WHERE description = :desc AND type = :type")
+    suspend fun deleteTransactionsByDescriptionAndType(desc: String, type: TransactionType)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTransactions(transactions: List<Transaction>)
 }

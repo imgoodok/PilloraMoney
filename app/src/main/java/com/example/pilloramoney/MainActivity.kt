@@ -17,10 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.pilloramoney.navigation.Screen
 import com.example.pilloramoney.ui.components.PilloraBottomBar
 import com.example.pilloramoney.ui.components.PilloraDrawer
-import com.example.pilloramoney.ui.screens.CalculatorScreen
-import com.example.pilloramoney.ui.screens.HomeScreen
-import com.example.pilloramoney.ui.screens.SettingsScreen
-import com.example.pilloramoney.ui.screens.SpreadsheetScreen
+import com.example.pilloramoney.ui.screens.*
 import com.example.pilloramoney.ui.theme.PilloraMoneyTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -44,7 +41,8 @@ fun PilloraApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination?.route
+    val currentRoute = currentDestination?.substringAfterLast(".") // Simple way to get the class name
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -72,7 +70,7 @@ fun PilloraApp() {
                         }
                     },
                     onFabClick = {
-                        // Ação do botão central (pode abrir diálogo rápido)
+                        navController.navigate(Screen.AddTransaction)
                     }
                 )
             }
@@ -87,6 +85,12 @@ fun PilloraApp() {
                     }
                     composable<Screen.Spreadsheet> {
                         SpreadsheetScreen()
+                    }
+                    composable<Screen.BalanceHorizon> {
+                        BalanceHorizonScreen()
+                    }
+                    composable<Screen.AddTransaction> {
+                        AddTransactionScreen()
                     }
                     composable<Screen.Calculator> {
                         CalculatorScreen()

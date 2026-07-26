@@ -1,68 +1,48 @@
-# Implementation Plan - PilloraMoney App
+# Implementation Plan - Advanced Dashboard & Calculator Integration
 
-Create a modern, native Android app for financial management with a localized database, advanced spreadsheet-like view, and a daily expense calculator.
+Enhance the Dashboard with professional metrics and integrate the Daily Calculator directly into the financial projection with bulk management capabilities.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> The central circular button (3rd space in the bottom bar) will be implemented as an "Action" button. Should it open a quick entry dialog or have a specific primary function?
+> **Calculator Sync:** When you "Apply to Projection", the app will create a daily recurring transaction named **"Gasto Diário (Calculadora)"**. If you apply it again, it will **overwrite** (delete and recreate) the previous ones to ensure no duplicates.
 >
 > [!NOTE]
-> For the "Spreadsheet" (Planilha) view, I will use a custom grid layout to ensure it feels like a spreadsheet while being mobile-friendly.
+> **Dashboard Metrics:**
+> - **Performance:** Month Balance (Income - Expenses - Savings).
+> - **Cost of Living:** Sum of all non-income and non-saving transactions.
+> - **Economizado:** Total categorized as "Economia".
 
 ## Proposed Changes
 
-### Project Configuration & Structure
-* Update dependencies in `libs.versions.toml` and `app/build.gradle.kts` to include:
-    * **Jetpack Navigation (Compose)**: For screen routing.
-    * **Room Database**: For local persistence.
-    * **Hilt (Dagger)**: For Dependency Injection.
-    * **Kotlin Serialization**: For type-safe navigation.
-    * **Material Icons Extended**: For better icons in the menus.
-* Establish package structure:
-    * `com.example.pilloramoney.data`: Room entities, DAOs, and repository.
-    * `com.example.pilloramoney.di`: Hilt modules.
-    * `com.example.pilloramoney.ui.screens`: Home, Planilha, Calculator.
-    * `com.example.pilloramoney.ui.components`: Custom BottomBar, SideMenu, Table.
-    * `com.example.pilloramoney.ui.viewmodels`: ViewModels for each screen.
-    * `com.example.pilloramoney.navigation`: NavHost and Route definitions.
+### Data & Logic Layer
+* **[MODIFY] [TransactionDao.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/data/local/TransactionDao.kt)**:
+    * Add `@Query("DELETE FROM transactions WHERE description = :desc AND type = :type")` to clear previous calculator entries.
+* **[MODIFY] [TransactionRepository.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/data/repository/TransactionRepository.kt)**:
+    * Add `applyCalculatorValueToProjection(value: Double)`: Clears existing "Gasto Diário (Calculadora)" entries and generates new ones for 10 years.
+    * Add `clearCalculatorProjection()`: Removes all calculator-driven entries.
 
----
+### ViewModels
+* **[MODIFY] [CalculatorViewModel.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/viewmodels/CalculatorViewModel.kt)**:
+    * Add `applyToProjection()` and `clearProjection()` methods using the repository.
+* **[MODIFY] [HomeViewModel.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/viewmodels/HomeViewModel.kt)**:
+    * Update `HomeUiState` to include `costOfLiving`, `savingsPercentage`, and `realDailyAverage`.
 
-### Data Layer (Room Database)
-* **[NEW] [Transaction.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/data/model/Transaction.kt)**: Entity for entries (Entrada, Saída, etc.).
-* **[NEW] [CalculatorItem.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/data/model/CalculatorItem.kt)**: Entity for the daily expense calculator (weekly/monthly/daily).
-* **[NEW] [AppDatabase.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/data/local/AppDatabase.kt)**: Room database setup.
-
----
-
-### UI Components
-* **[NEW] [PilloraBottomBar.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/components/PilloraBottomBar.kt)**: Custom bottom navigation with 5 slots and a central elevated FAB.
-* **[NEW] [PilloraDrawer.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/components/PilloraDrawer.kt)**: Navigation drawer with user profile placeholder and navigation links.
-
----
-
-### Screens
-* **[NEW] [HomeScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/HomeScreen.kt)**: Dashboard with balance summaries and basic charts.
-* **[NEW] [SpreadsheetScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/SpreadsheetScreen.kt)**:
-    * Month navigation.
-    * Smart spreadsheet with columns: Dia, Entrada, Saida, Diario, Cartão, Economia, Saldo.
-    * Dynamic coloring based on balance.
-* **[NEW] [CalculatorScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/CalculatorScreen.kt)**: Interface to add recurring expenses and calculate the daily average.
-
----
-
-### Navigation
-* **[MODIFY] [MainActivity.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/MainActivity.kt)**: Initialize Navigation and set up the main Scaffold.
+### UI Screens
+* **[MODIFY] [CalculatorScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/CalculatorScreen.kt)**:
+    * Add "Aplicar à Projeção" button (Primary action).
+    * Add "Remover da Projeção" button (Secondary action).
+* **[MODIFY] [HomeScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/HomeScreen.kt)**:
+    * Redesign to match the "Cálculos do mês" layout from the screenshot.
+    * Use progress bars for "Economizado".
+    * Add status text (e.g., "Faltou dinheiro" if balance < 0).
 
 ## Verification Plan
 
-### Automated Tests
-* Room DAO tests for transaction persistence and recurring logic.
-* Viewmodel unit tests for calculator logic.
-
 ### Manual Verification
-* Deploy to emulator/device.
-* Verify Navigation Drawer and Bottom Bar integration.
-* Test spreadsheet month switching and data entry.
-* Validate color coding for balances.
+1. Go to **Calculadora**, add some items.
+2. Click **Aplicar à Projeção**.
+3. Verify in **Projeção** (Planilha) that every day has a "Gasto Diário (Calculadora)" entry.
+4. Go back to **Calculadora**, click **Remover da Projeção**.
+5. Verify they are gone from the Spreadsheet.
+6. Open **Dashboard** and check if "Performance" and "Custo de Vida" match your monthly totals.

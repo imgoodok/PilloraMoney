@@ -11,77 +11,77 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.example.pilloramoney.navigation.Screen
 
 @Composable
 fun PilloraBottomBar(
-    currentRoute: Any?,
+    currentRoute: String?,
     onNavigate: (Any) -> Unit,
     onFabClick: () -> Unit
 ) {
-    // We use a Box to stack the BottomAppBar and the elevated FAB
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp),
+            .navigationBarsPadding(),
         contentAlignment = Alignment.BottomCenter
     ) {
-        BottomAppBar(
+        NavigationBar(
             modifier = Modifier.fillMaxWidth(),
-            tonalElevation = 8.dp,
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Button 1: Home
-                BottomNavItem(
-                    icon = Icons.Default.Home,
-                    label = "Home",
-                    isSelected = currentRoute?.toString()?.contains("Home") == true,
-                    onClick = { onNavigate(com.example.pilloramoney.navigation.Screen.Home) }
-                )
+            // Screen.Home
+            BottomNavItem(
+                icon = Icons.Default.Dashboard,
+                label = "Home",
+                isSelected = currentRoute?.contains("Home") == true,
+                onClick = { onNavigate(Screen.Home) }
+            )
 
-                // Button 2: Planilha
-                BottomNavItem(
-                    icon = Icons.Default.TableChart,
-                    label = "Planilha",
-                    isSelected = currentRoute?.toString()?.contains("Spreadsheet") == true,
-                    onClick = { onNavigate(com.example.pilloramoney.navigation.Screen.Spreadsheet) }
-                )
+            // Screen.Spreadsheet
+            BottomNavItem(
+                icon = Icons.Default.CalendarMonth,
+                label = "Projeção",
+                isSelected = currentRoute?.contains("Spreadsheet") == true,
+                onClick = { onNavigate(Screen.Spreadsheet) }
+            )
 
-                // Space for FAB (Middle)
-                Spacer(modifier = Modifier.width(64.dp))
+            // Middle Gap for FAB
+            Spacer(modifier = Modifier.weight(1f))
 
-                // Button 4: Calculadora
-                BottomNavItem(
-                    icon = Icons.Default.Calculate,
-                    label = "Calculadora",
-                    isSelected = currentRoute?.toString()?.contains("Calculator") == true,
-                    onClick = { onNavigate(com.example.pilloramoney.navigation.Screen.Calculator) }
-                )
+            // Screen.Calculator
+            BottomNavItem(
+                icon = Icons.Default.Calculate,
+                label = "Cálculo",
+                isSelected = currentRoute?.contains("Calculator") == true,
+                onClick = { onNavigate(Screen.Calculator) }
+            )
 
-                // Button 5: Perfil/Outro (User didn't specify, I'll use Settings or similar)
-                BottomNavItem(
-                    icon = Icons.Default.Person,
-                    label = "Perfil",
-                    isSelected = currentRoute?.toString()?.contains("Settings") == true,
-                    onClick = { onNavigate(com.example.pilloramoney.navigation.Screen.Settings) }
-                )
-            }
+            // Screen.Settings
+            BottomNavItem(
+                icon = Icons.Default.Settings,
+                label = "Ajustes",
+                isSelected = currentRoute?.contains("Settings") == true,
+                onClick = { onNavigate(Screen.Settings) }
+            )
         }
 
-        // The Central Circular Button (FAB)
+        // Floating Action Button
         FloatingActionButton(
             onClick = onFabClick,
             shape = CircleShape,
             containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White,
             modifier = Modifier
-                .offset(y = (-20).dp) // This makes it pop out upwards
-                .size(64.dp)
+                .offset(y = (-28).dp) // Raised slightly more for a cleaner "hanging" look
+                .size(60.dp),
+            elevation = FloatingActionButtonDefaults.elevation(8.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Adicionar", tint = Color.White)
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Adicionar",
+                modifier = Modifier.size(32.dp)
+            )
         }
     }
 }
@@ -99,6 +99,7 @@ fun RowScope.BottomNavItem(
         icon = { Icon(icon, contentDescription = label) },
         label = { Text(label, style = MaterialTheme.typography.labelSmall) },
         colors = NavigationBarItemDefaults.colors(
+            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
             selectedIconColor = MaterialTheme.colorScheme.primary,
             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
         )

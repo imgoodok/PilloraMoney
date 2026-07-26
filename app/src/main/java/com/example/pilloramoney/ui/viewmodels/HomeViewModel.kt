@@ -13,7 +13,12 @@ data class HomeUiState(
     val totalBalance: Double = 0.0,
     val monthEntries: Double = 0.0,
     val monthExpenses: Double = 0.0,
-    val monthSavings: Double = 0.0
+    val monthSavings: Double = 0.0,
+    val costOfLiving: Double = 0.0,
+    val savingsPercentage: Float = 0.0f,
+    val dailyAverageReal: Double = 0.0,
+    val dailyAveragePlanned: Double = 0.0,
+    val performanceStatus: String = "Neutro"
 )
 
 @HiltViewModel
@@ -30,26 +35,42 @@ class HomeViewModel @Inject constructor(
 
     private fun loadDashboardData() {
         val calendar = Calendar.getInstance()
+        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val start = calendar.timeInMillis
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        calendar.set(Calendar.DAY_OF_MONTH, daysInMonth)
         val end = calendar.timeInMillis
 
         transactionDao.getTransactionsInRange(start, end).onEach { transactions ->
             val entries = transactions.filter { it.type == TransactionType.ENTRADA }.sumOf { it.value }
-            val expenses = transactions.filter { 
-                it.type == TransactionType.SAIDA || 
-                it.type == TransactionType.DIARIO || 
-                it.type == TransactionType.CARTAO 
-            }.sumOf { it.value }
             val savings = transactions.filter { it.type == TransactionType.ECONOMIA }.sumOf { it.value }
             
+            val directExpenses = transactions.filter { it.type == TransactionType.SAIDA }.sumOf { it.value }
+            val dailyExpenses = transactions.filter { it.type == TransactionType.DIARIO }.sumOf { it.value }
+            val cardExpenses = transactions.filter { it.type == TransactionType.CARTAO }.sumOf { it.value }
+            
+            val totalExpenses = directExpenses + dailyExpenses + cardExpenses
+            val performance = entries - totalExpenses - savings
+            
+            val savingsPct = if (entries > 0) (savings / entries).toFloat() else 0.0f
+            
+            val plannedDaily = transactions
+                .filter { it.type == TransactionType.DIARIO && it.description.contains("Calculadora") }
+                .sumOf { it.value } / daysInMonth
+
             _uiState.update { 
                 it.copy(
-                    totalBalance = entries - expenses - savings,
+                    totalBalance = performance,
                     monthEntries = entries,
-                    monthExpenses = expenses,
-                    monthSavings = savings
+                    monthExpenses = totalExpenses,
+                    monthSavings = savings,
+                    costOfLiving = totalExpenses,
+                    savingsPercentage = savingsPct,
+                    dailyAverageReal = if (currentDay > 0) dailyExpenses / currentDay else 0.0,
+                    dailyAveragePlanned = plannedDaily,
+                    performanceStatus = if (performance < 0) "Faltou dinheiro" else "Saldo Positivo"
                 )
             }
         }.launchIn(viewModelScope)
