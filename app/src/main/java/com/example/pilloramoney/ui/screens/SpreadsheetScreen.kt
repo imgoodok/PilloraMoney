@@ -25,6 +25,7 @@ import com.example.pilloramoney.data.model.TransactionType
 import com.example.pilloramoney.ui.components.RepetitionDropdown
 import com.example.pilloramoney.ui.theme.*
 import com.example.pilloramoney.ui.viewmodels.SpreadsheetViewModel
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,8 +34,7 @@ fun SpreadsheetScreen(
     viewModel: SpreadsheetViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var showBalanceDialog by remember { mutableStateOf(false) }
-    var showAddDialog by remember { mutableStateOf(false) }
+    var showDetailsDialog by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf(1) }
     var selectedType by remember { mutableStateOf(TransactionType.SAIDA) }
 
@@ -44,6 +44,11 @@ fun SpreadsheetScreen(
         .replaceFirstChar { it.uppercase() }
 
     val horizontalScrollState = rememberScrollState()
+    // Localized currency formatter without the "R$" symbol for table density
+    val currencyFormat = remember { NumberFormat.getNumberInstance(Locale("pt", "BR")).apply { 
+        minimumFractionDigits = 2 
+        maximumFractionDigits = 2
+    } }
 
     Scaffold(
         topBar = {
@@ -59,29 +64,11 @@ fun SpreadsheetScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Column {
-                            Text(
-                                text = monthName,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Row(
-                                modifier = Modifier.clickable { showBalanceDialog = true },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Saldo Inicial: ",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "R$ ${String.format(Locale.getDefault(), "%.2f", uiState.initialBalance)}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (uiState.initialBalance < 0) ErrorRed else SuccessGreen
-                                )
-                            }
-                        }
+                        Text(
+                            text = monthName,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
                         Row {
                             IconButton(onClick = { viewModel.previousMonth() }, modifier = Modifier.size(40.dp)) {
                                 Icon(Icons.Default.ChevronLeft, contentDescription = null)
@@ -113,8 +100,14 @@ fun SpreadsheetScreen(
                     cal.get(Calendar.DAY_OF_MONTH) == day
                 }
                 
+                // Logic: In - (Out + Daily + Savings). Ignore Card (Cartão) per request for balance.
                 val dayIn = dayTransactions.filter { it.type == TransactionType.ENTRADA }.sumOf { it.value }
-                val dayOut = dayTransactions.filter { it.type != TransactionType.ENTRADA }.sumOf { it.value }
+                val dayOut = dayTransactions.filter { 
+                    it.type == TransactionType.SAIDA || 
+                    it.type == TransactionType.DIARIO || 
+                    it.type == TransactionType.ECONOMIA 
+                }.sumOf { it.value }
+                
                 cumulativeBalance += (dayIn - dayOut)
 
                 CompactSpreadsheetRow(
@@ -122,10 +115,11 @@ fun SpreadsheetScreen(
                     transactions = dayTransactions,
                     dailyBalance = cumulativeBalance,
                     scrollState = horizontalScrollState,
+                    currencyFormat = currencyFormat,
                     onCellClick = { type ->
                         selectedDay = day
                         selectedType = type
-                        showAddDialog = true
+                        showDetailsDialog = true
                     }
                 )
                 HorizontalDivider(
@@ -136,25 +130,21 @@ fun SpreadsheetScreen(
         }
     }
 
-    if (showBalanceDialog) {
-        InitialBalanceDialog(
-            currentValue = uiState.initialBalance,
-            onDismiss = { showBalanceDialog = false },
-            onConfirm = {
-                viewModel.updateInitialBalance(it)
-                showBalanceDialog = false
-            }
-        )
-    }
-
-    if (showAddDialog) {
-        AddTransactionDialog(
-            initialDay = selectedDay,
-            initialType = selectedType,
-            onDismiss = { showAddDialog = false },
-            onConfirm = { value, desc, repetition, numRep ->
-                viewModel.addTransaction(selectedDay, selectedType, value, desc, repetition, numRep)
-                showAddDialog = false
+    if (showDetailsDialog) {
+        val filteredItems = uiState.transactions.filter {
+            val cal = Calendar.getInstance().apply { timeInMillis = it.date }
+            cal.get(Calendar.DAY_OF_MONTH) == selectedDay && it.type == selectedType
+        }
+        
+        DayDetailsDialog(
+            day = selectedDay,
+            type = selectedType,
+            existingItems = filteredItems,
+            onDismiss = { showDetailsDialog = false },
+            onDelete = { viewModel.deleteTransaction(it) },
+            onAdd = { valValue, desc, repetition, numRep ->
+                viewModel.addTransaction(selectedDay, selectedType, valValue, desc, repetition, numRep)
+                showDetailsDialog = false
             }
         )
     }
@@ -185,13 +175,13 @@ fun CompactSpreadsheetHeader(scrollState: ScrollState) {
             HeaderCell("ENTRADA")
             HeaderCell("SAÍDA")
             HeaderCell("DIÁRIO")
-            HeaderCell("CARTÃO")
             HeaderCell("ECONOMIA")
+            HeaderCell("CARTÃO") // RE-ADDED
         }
         
         Text(
             "SALDO",
-            modifier = Modifier.width(85.dp).padding(end = 8.dp),
+            modifier = Modifier.width(100.dp).padding(end = 8.dp),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -204,7 +194,7 @@ fun CompactSpreadsheetHeader(scrollState: ScrollState) {
 fun HeaderCell(text: String) {
     Text(
         text = text,
-        modifier = Modifier.width(80.dp),
+        modifier = Modifier.width(90.dp),
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -218,6 +208,7 @@ fun CompactSpreadsheetRow(
     transactions: List<Transaction>,
     dailyBalance: Double,
     scrollState: ScrollState,
+    currencyFormat: NumberFormat,
     onCellClick: (TransactionType) -> Unit
 ) {
     Row(
@@ -226,6 +217,7 @@ fun CompactSpreadsheetRow(
             .height(52.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Fixed Day
         Box(
             modifier = Modifier.width(40.dp).fillMaxHeight(),
             contentAlignment = Alignment.Center
@@ -238,6 +230,7 @@ fun CompactSpreadsheetRow(
             )
         }
 
+        // Scrollable Values
         Row(
             modifier = Modifier
                 .weight(1f)
@@ -245,15 +238,16 @@ fun CompactSpreadsheetRow(
                 .horizontalScroll(scrollState),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            DataCell(transactions.filter { it.type == TransactionType.ENTRADA }, SuccessGreen) { onCellClick(TransactionType.ENTRADA) }
-            DataCell(transactions.filter { it.type == TransactionType.SAIDA }, ErrorRed) { onCellClick(TransactionType.SAIDA) }
-            DataCell(transactions.filter { it.type == TransactionType.DIARIO }, ErrorRed) { onCellClick(TransactionType.DIARIO) }
-            DataCell(transactions.filter { it.type == TransactionType.CARTAO }, WarningOrange) { onCellClick(TransactionType.CARTAO) }
-            DataCell(transactions.filter { it.type == TransactionType.ECONOMIA }, SuccessGreen) { onCellClick(TransactionType.ECONOMIA) }
+            DataCell(transactions.filter { it.type == TransactionType.ENTRADA }, SuccessGreen, currencyFormat) { onCellClick(TransactionType.ENTRADA) }
+            DataCell(transactions.filter { it.type == TransactionType.SAIDA }, ErrorRed, currencyFormat) { onCellClick(TransactionType.SAIDA) }
+            DataCell(transactions.filter { it.type == TransactionType.DIARIO }, Color.Magenta, currencyFormat) { onCellClick(TransactionType.DIARIO) }
+            DataCell(transactions.filter { it.type == TransactionType.ECONOMIA }, PrimaryBlue, currencyFormat) { onCellClick(TransactionType.ECONOMIA) }
+            DataCell(transactions.filter { it.type == TransactionType.CARTAO }, WarningOrange, currencyFormat) { onCellClick(TransactionType.CARTAO) }
         }
 
+        // Fixed Saldo
         Box(
-            modifier = Modifier.width(85.dp).padding(end = 8.dp).fillMaxHeight(),
+            modifier = Modifier.width(100.dp).padding(end = 8.dp).fillMaxHeight(),
             contentAlignment = Alignment.CenterEnd
         ) {
             Surface(
@@ -261,13 +255,13 @@ fun CompactSpreadsheetRow(
                 color = if (dailyBalance < 0) ErrorRed.copy(alpha = 0.1f) else SuccessGreen.copy(alpha = 0.1f)
             ) {
                 Text(
-                    text = String.format(Locale.getDefault(), "%.2f", dailyBalance),
+                    text = currencyFormat.format(dailyBalance),
                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     color = if (dailyBalance < 0) ErrorRed else SuccessGreen,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Visible
                 )
             }
         }
@@ -278,11 +272,12 @@ fun CompactSpreadsheetRow(
 fun DataCell(
     items: List<Transaction>,
     color: Color,
+    currencyFormat: NumberFormat,
     onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
-            .width(80.dp)
+            .width(90.dp)
             .fillMaxHeight()
             .clickable { onClick() }
             .padding(2.dp),
@@ -294,10 +289,12 @@ fun DataCell(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 val total = items.sumOf { it.value }
                 Text(
-                    text = String.format(Locale.getDefault(), "%.2f", total),
-                    style = MaterialTheme.typography.labelMedium,
+                    text = currencyFormat.format(total),
+                    style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = color
+                    color = color,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (items.size > 1) {
                     Text(
@@ -313,59 +310,56 @@ fun DataCell(
 }
 
 @Composable
-fun InitialBalanceDialog(
-    currentValue: Double,
+fun DayDetailsDialog(
+    day: Int,
+    type: TransactionType,
+    existingItems: List<Transaction>,
     onDismiss: () -> Unit,
-    onConfirm: (Double) -> Unit
-) {
-    var value by remember { mutableStateOf(currentValue.toString()) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Ajustar Saldo Inicial") },
-        text = {
-            OutlinedTextField(
-                value = value,
-                onValueChange = { value = it },
-                label = { Text("Valor (R$)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = {
-            Button(onClick = { onConfirm(value.toDoubleOrNull() ?: 0.0) }) { Text("Salvar") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
-        }
-    )
-}
-
-@Composable
-fun AddTransactionDialog(
-    initialDay: Int,
-    initialType: TransactionType,
-    onDismiss: () -> Unit,
-    onConfirm: (Double, String, String, Int) -> Unit
+    onDelete: (Transaction) -> Unit,
+    onAdd: (Double, String, String, Int) -> Unit
 ) {
     var value by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var repetition by remember { mutableStateOf("Apenas uma vez") }
     var numRepetitions by remember { mutableStateOf("1") }
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("pt", "BR")) }
 
-    val typeName = when(initialType) {
+    val typeName = when(type) {
         TransactionType.ENTRADA -> "Entrada"
         TransactionType.SAIDA -> "Saída"
         TransactionType.DIARIO -> "Gasto Diário"
-        TransactionType.CARTAO -> "Cartão"
         TransactionType.ECONOMIA -> "Economia"
+        TransactionType.CARTAO -> "Cartão"
         else -> "Lançamento"
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Novo(a) $typeName - Dia $initialDay") },
+        title = { Text("Detalhes de $typeName - Dia $day") },
         text = {
-            Column {
+            Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+                if (existingItems.isNotEmpty()) {
+                    Text("Lançamentos Existentes:", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    existingItems.forEach { item ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(item.description.ifEmpty { "Sem descrição" }, style = MaterialTheme.typography.bodySmall)
+                                Text(currencyFormat.format(item.value), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                            }
+                            IconButton(onClick = { onDelete(item) }) {
+                                Icon(Icons.Default.Delete, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(20.dp))
+                            }
+                        }
+                    }
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                }
+
+                Text("Adicionar Novo:", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = value,
                     onValueChange = { value = it },
@@ -400,13 +394,13 @@ fun AddTransactionDialog(
             Button(onClick = {
                 val v = value.toDoubleOrNull() ?: 0.0
                 val n = numRepetitions.toIntOrNull() ?: 1
-                onConfirm(v, description, repetition, n)
+                onAdd(v, description, repetition, n)
             }) {
-                Text("Confirmar")
+                Text("Salvar Novo")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(onClick = onDismiss) { Text("Fechar") }
         }
     )
 }

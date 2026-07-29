@@ -7,20 +7,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pilloramoney.ui.theme.*
 import com.example.pilloramoney.ui.viewmodels.BalanceHorizonViewModel
-import com.example.pilloramoney.ui.viewmodels.MonthProjection
 import java.util.*
 
 @Composable
@@ -28,145 +26,145 @@ fun BalanceHorizonScreen(
     viewModel: BalanceHorizonViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val horizontalScrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Header
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Horizonte de Saldo",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Projeção dos próximos 12 meses",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        // Summary Statistics (Horizontal Cards)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            HorizonStatCard("Saldo Final", uiState.projections.lastOrNull()?.finalBalance ?: 0.0, Icons.AutoMirrored.Filled.TrendingUp, SuccessGreen)
-            HorizonStatCard("Melhor Mês", uiState.bestMonthValue, Icons.Default.Star, SuccessGreen)
-            HorizonStatCard("Pior Saldo", uiState.worstBalance, Icons.AutoMirrored.Filled.TrendingDown, ErrorRed)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Month List
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(uiState.projections) { projection ->
-                MonthProjectionCard(projection)
-            }
-        }
-    }
-}
-
-@Composable
-fun HorizonStatCard(label: String, value: Double, icon: ImageVector, color: Color) {
-    Surface(
-        modifier = Modifier.width(160.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(14.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "R$ ${String.format(Locale.getDefault(), "%.2f", value)}",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                color = if (value < 0) ErrorRed else SuccessGreen
-            )
-        }
-    }
-}
-
-@Composable
-fun MonthProjectionCard(projection: MonthProjection) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Month Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+    Scaffold(
+        topBar = {
+            Surface(
+                color = MaterialTheme.colorScheme.background,
+                tonalElevation = 2.dp
             ) {
-                Text(
-                    text = projection.monthName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (projection.finalBalance < 0) ErrorRed.copy(alpha = 0.1f) else SuccessGreen.copy(alpha = 0.1f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Saldo: R$ ${String.format(Locale.getDefault(), "%.2f", projection.finalBalance)}",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        text = "Horizonte de Saldos",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(Icons.Default.Add, contentDescription = null)
+                }
+            }
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            // Grid Header (Month Names)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(horizontalScrollState)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                    .padding(vertical = 12.dp)
+            ) {
+                uiState.months.forEach { month ->
+                    Text(
+                        text = month.monthName,
+                        modifier = Modifier.width(140.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (projection.finalBalance < 0) ErrorRed else SuccessGreen
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Details Grid
-            Row(modifier = Modifier.fillMaxWidth()) {
-                DetailItem("Entradas", projection.entries, SuccessGreen, Modifier.weight(1f))
-                DetailItem("Saídas", projection.expenses + projection.dailyExpenses, ErrorRed, Modifier.weight(1f))
-                DetailItem("Cartão", projection.cards, WarningOrange, Modifier.weight(1f))
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(modifier = Modifier.fillMaxWidth()) {
-                DetailItem("Economias", projection.savings, SuccessGreen, Modifier.weight(1f))
-                DetailItem("Min. Mês", projection.minBalanceOfMonth, if (projection.minBalanceOfMonth < 0) ErrorRed else SuccessGreen, Modifier.weight(1f))
-                Spacer(modifier = Modifier.weight(1f))
+            // Grid Content
+            val maxDays = 31 // Simplified
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .horizontalScroll(horizontalScrollState)
+            ) {
+                items((1..maxDays).toList()) { dayIndex ->
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        uiState.months.forEach { month ->
+                            val dayData = month.days.find { it.day == dayIndex }
+                            if (dayData != null) {
+                                HorizonCell(dayData.day, dayData.balance)
+                            } else {
+                                Spacer(modifier = Modifier.width(140.dp).height(50.dp))
+                            }
+                        }
+                    }
+                    HorizontalDivider(thickness = 0.5.dp, color = BorderColor.copy(alpha = 0.2f))
+                }
             }
         }
     }
 }
 
 @Composable
-fun DetailItem(label: String, value: Double, color: Color, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+fun HorizonCell(day: Int, balance: Double) {
+    val isDark = isSystemInDarkTheme()
+    
+    val bgColor = when {
+        balance >= 2000 -> if (isDark) Color(0xFF2E7D32).copy(alpha = 0.7f) else Color(0xFFC8E6C9)
+        balance >= 1000 -> if (isDark) Color(0xFF388E3C).copy(alpha = 0.5f) else Color(0xFFE8F5E9)
+        balance > 0 -> if (isDark) Color(0xFF43A047).copy(alpha = 0.3f) else Color(0xFFF1F8E9)
+        balance == 0.0 -> Color.Transparent
+        balance >= -500 -> if (isDark) Color(0xFFFBC02D).copy(alpha = 0.3f) else Color(0xFFFFF9C4)
+        else -> if (isDark) Color(0xFFD32F2F).copy(alpha = 0.3f) else Color(0xFFFFEBEE)
+    }
+
+    val textColor = when {
+        balance >= 0 -> if (isDark) SuccessGreen else Color(0xFF1B5E20) // Much darker green for light mode
+        else -> if (isDark) ErrorRed else Color(0xFFB71C1C) // Darker red for light mode
+    }
+
+    Row(
+        modifier = Modifier
+            .width(140.dp)
+            .height(50.dp)
+            .padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
-            text = "R$ ${String.format(Locale.getDefault(), "%.2f", value)}",
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Bold,
-            color = color
+            text = String.format(Locale.getDefault(), "%02d", day),
+            modifier = Modifier.width(24.dp),
+            fontSize = 11.sp,
+            color = TextSecondary
         )
+        
+        Surface(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(4.dp),
+            color = bgColor,
+            border = if (balance != 0.0) BorderStroke(0.5.dp, textColor.copy(alpha = 0.2f)) else null
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    text = formatHorizonValue(balance),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Black,
+                    color = textColor,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        shadow = if (isDark) androidx.compose.ui.graphics.Shadow(
+                            color = Color.Black.copy(alpha = 0.3f),
+                            offset = androidx.compose.ui.geometry.Offset(1f, 1f),
+                            blurRadius = 2f
+                        ) else null
+                    )
+                )
+            }
+        }
+    }
+}
+
+fun formatHorizonValue(value: Double): String {
+    return when {
+        Math.abs(value) >= 1000 -> String.format(Locale.getDefault(), "%.2fK", value / 1000.0)
+        else -> String.format(Locale.getDefault(), "%.0f", value)
     }
 }

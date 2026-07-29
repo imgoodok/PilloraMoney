@@ -39,6 +39,7 @@ fun AddTransactionScreen(
     var dateStr by remember { mutableStateOf(SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())) }
     var repetition by remember { mutableStateOf("Apenas uma vez") }
     var numRepetitions by remember { mutableStateOf("1") }
+    var showResetDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -144,7 +145,7 @@ fun AddTransactionScreen(
                     viewModel.saveTransaction(
                         description = description,
                         value = value.toDoubleOrNull() ?: 0.0,
-                        date = Date().time, // In a real app, parse dateStr
+                        date = Date().time,
                         repetition = repetition,
                         numRepetitions = numRepetitions.toIntOrNull() ?: 1
                     )
@@ -164,13 +165,14 @@ fun AddTransactionScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Últimos Lançamentos", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                TextButton(onClick = { viewModel.deleteAll() }) {
+                val typeLabel = uiState.selectedType.name.lowercase().capitalize() + "s"
+                Text("Lançamentos ($typeLabel)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                TextButton(onClick = { showResetDialog = true }) {
                     Text("Resetar", color = ErrorRed)
                 }
             }
             
-            uiState.lastTransactions.take(10).forEach { tx ->
+            uiState.lastTransactions.forEach { tx ->
                 LastTransactionItem(tx, onDelete = { viewModel.deleteTransaction(it) })
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -182,9 +184,32 @@ fun AddTransactionScreen(
             }
         }
     }
-}
 
-fun String.capitalize() = replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("Confirmação de Reset") },
+            text = { Text("Deseja apagar os lançamentos? Escolha se quer resetar apenas esta categoria ou tudo.") },
+            confirmButton = {
+                Button(onClick = { 
+                    viewModel.deleteAll()
+                    showResetDialog = false
+                }, colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)) {
+                    Text("Geral (TUDO)")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    viewModel.deleteCurrentType()
+                    showResetDialog = false
+                }) {
+                    val typeLabel = uiState.selectedType.name.lowercase().capitalize() + "s"
+                    Text("Apenas $typeLabel")
+                }
+            }
+        )
+    }
+}
 
 @Composable
 fun LastTransactionItem(transaction: Transaction, onDelete: (Transaction) -> Unit) {

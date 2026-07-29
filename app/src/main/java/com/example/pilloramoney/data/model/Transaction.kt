@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 enum class TransactionType {
-    ENTRADA, SAIDA, ECONOMIA, CARTAO, DIARIO, TRANSFERENCIA
+    ENTRADA, SAIDA, ECONOMIA, CARTAO, DIARIO
 }
 
 @Entity(tableName = "transactions")

@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Delete
@@ -31,6 +32,7 @@ import com.example.pilloramoney.ui.viewmodels.CalculatorViewModel
 import kotlinx.coroutines.launch
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalculatorScreen(
     viewModel: CalculatorViewModel = hiltViewModel()
@@ -41,6 +43,16 @@ fun CalculatorScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Calculadora Diária") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                ),
+                windowInsets = WindowInsets(0.dp)
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
@@ -49,22 +61,15 @@ fun CalculatorScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Header
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Calculadora Diária",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
+            // Summary Statistics (Full Width)
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
                     text = "Consolide seus gastos recorrentes",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
-            }
-
-            // Summary Statistics (Full Width)
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),

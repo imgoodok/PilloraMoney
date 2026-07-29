@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +26,7 @@ fun PilloraDrawer(
     closeDrawer: () -> Unit
 ) {
     ModalDrawerSheet(
+        modifier = Modifier.width(250.dp), // Thinner drawer
         drawerContainerColor = MaterialTheme.colorScheme.background,
         drawerContentColor = MaterialTheme.colorScheme.onBackground,
         drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
@@ -40,7 +40,7 @@ fun PilloraDrawer(
         ) {
             Column {
                 Surface(
-                    modifier = Modifier.size(64.dp),
+                    modifier = Modifier.size(56.dp),
                     shape = CircleShape,
                     color = MaterialTheme.colorScheme.primary
                 ) {
@@ -48,7 +48,7 @@ fun PilloraDrawer(
                         Text(
                             text = "P",
                             color = Color.White,
-                            fontSize = 28.sp,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -56,7 +56,7 @@ fun PilloraDrawer(
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Pillora Money",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
@@ -71,7 +71,7 @@ fun PilloraDrawer(
 
         // Sections
         DrawerSectionHeader("PRINCIPAL")
-        DrawerItem(Icons.Default.Dashboard, "Dashboard") {
+        DrawerItem(Icons.Default.Dashboard, "Totais!") {
             onNavigate(Screen.Home)
             closeDrawer()
         }
@@ -86,7 +86,7 @@ fun PilloraDrawer(
 
         Spacer(modifier = Modifier.height(8.dp))
         DrawerSectionHeader("FERRAMENTAS")
-        DrawerItem(Icons.Default.AddCircle, "Novo Lançamento") {
+        DrawerItem(Icons.Default.AddCircle, "Lançamentos") {
             onNavigate(Screen.AddTransaction)
             closeDrawer()
         }
@@ -94,8 +94,12 @@ fun PilloraDrawer(
             onNavigate(Screen.Calculator)
             closeDrawer()
         }
-        DrawerItem(Icons.Default.Category, "Categorias") {
-            /* Categories */
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        DrawerSectionHeader("SISTEMA")
+        DrawerItem(Icons.Default.Settings, "Configurações") {
+            onNavigate(Screen.Settings)
+            closeDrawer()
         }
 
         Spacer(modifier = Modifier.weight(1f))

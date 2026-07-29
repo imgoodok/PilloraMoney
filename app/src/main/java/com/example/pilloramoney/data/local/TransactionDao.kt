@@ -22,8 +22,20 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY date DESC LIMIT 100")
     fun getLatestTransactions(): Flow<List<Transaction>>
 
+    @Query("SELECT * FROM transactions WHERE type = :type ORDER BY date ASC LIMIT 100")
+    fun getTransactionsByType(type: TransactionType): Flow<List<Transaction>>
+
+    @Query("SELECT * FROM transactions WHERE type = 'ECONOMIA' ORDER BY date ASC")
+    fun getAllSavings(): Flow<List<Transaction>>
+
+    @Query("SELECT SUM(value) FROM transactions WHERE type = 'ECONOMIA'")
+    fun getTotalSavingsSum(): Flow<Double?>
+
     @Query("DELETE FROM transactions")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM transactions WHERE type = :type")
+    suspend fun deleteByType(type: TransactionType)
 
     @Query("DELETE FROM transactions WHERE description = :desc AND type = :type")
     suspend fun deleteTransactionsByDescriptionAndType(desc: String, type: TransactionType)

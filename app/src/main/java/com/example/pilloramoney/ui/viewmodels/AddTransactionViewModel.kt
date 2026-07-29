@@ -7,6 +7,7 @@ import com.example.pilloramoney.data.model.Transaction
 import com.example.pilloramoney.data.model.TransactionType
 import com.example.pilloramoney.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,6 +17,7 @@ data class AddTransactionUiState(
     val selectedType: TransactionType = TransactionType.ENTRADA
 )
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class AddTransactionViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
@@ -26,11 +28,17 @@ class AddTransactionViewModel @Inject constructor(
     val uiState: StateFlow<AddTransactionUiState> = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            transactionDao.getLatestTransactions().collect { list ->
+        // Observe selection and fetch corresponding items
+        _uiState
+            .map { it.selectedType }
+            .distinctUntilChanged()
+            .flatMapLatest { type ->
+                transactionDao.getTransactionsByType(type)
+            }
+            .onEach { list ->
                 _uiState.update { it.copy(lastTransactions = list) }
             }
-        }
+            .launchIn(viewModelScope)
     }
 
     fun setType(type: TransactionType) {
@@ -59,6 +67,12 @@ class AddTransactionViewModel @Inject constructor(
     fun deleteTransaction(transaction: Transaction) {
         viewModelScope.launch {
             transactionDao.deleteTransaction(transaction)
+        }
+    }
+
+    fun deleteCurrentType() {
+        viewModelScope.launch {
+            transactionDao.deleteByType(_uiState.value.selectedType)
         }
     }
 

@@ -3,6 +3,7 @@ package com.example.pilloramoney.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -33,7 +34,7 @@ fun PilloraBottomBar(
             // Screen.Home
             BottomNavItem(
                 icon = Icons.Default.Dashboard,
-                label = "Home",
+                label = "Totais!",
                 isSelected = currentRoute?.contains("Home") == true,
                 onClick = { onNavigate(Screen.Home) }
             )
@@ -57,12 +58,12 @@ fun PilloraBottomBar(
                 onClick = { onNavigate(Screen.Calculator) }
             )
 
-            // Screen.Settings
+            // Screen.BalanceHorizon
             BottomNavItem(
-                icon = Icons.Default.Settings,
-                label = "Ajustes",
-                isSelected = currentRoute?.contains("Settings") == true,
-                onClick = { onNavigate(Screen.Settings) }
+                icon = Icons.AutoMirrored.Filled.TrendingUp,
+                label = "Horizonte",
+                isSelected = currentRoute?.contains("BalanceHorizon") == true,
+                onClick = { onNavigate(Screen.BalanceHorizon) }
             )
         }
 

@@ -1,15 +1,18 @@
-# Tasks - Advanced Dashboard & Calculator Integration
+# Tasks - Advanced Balance Horizon & UI Refinement
 
-- [ ] Data Layer & Repository Logic
-    - [ ] Update `TransactionDao` with specific delete query
-    - [ ] Implement `applyCalculatorValueToProjection` in `TransactionRepository`
-    - [ ] Implement `clearCalculatorProjection` in `TransactionRepository`
-- [ ] ViewModel Enhancements
-    - [ ] Update `CalculatorViewModel` with apply/clear actions
-    - [ ] Update `HomeViewModel` with new dashboard metrics
-- [ ] UI Refinement
-    - [ ] Add Apply/Remove buttons to `CalculatorScreen`
-    - [ ] Redesign `HomeScreen` based on professional metrics screenshot
+- [ ] Spreadsheet (Projeção) Refinement
+    - [ ] Remove "Saldo Inicial" from top bar
+    - [ ] Correct balance math: `In - (Out + Daily + Savings)`
+    - [ ] Improve formatting for thousands separator and column width
+    - [ ] Refine `DayDetailsDialog` to list items and allow single deletions
+- [ ] Home Screen & Navigation Update
+    - [ ] Add drawer opening button in top-right of `HomeScreen`
+    - [ ] Update `MainActivity` navigation logic and drawer callbacks
+    - [ ] Update `PilloraBottomBar`: Change "Ajustes" to "Horizonte"
+- [ ] High-Density Balance Horizon Grid
+    - [ ] Update `BalanceHorizonViewModel` to calculate daily balances per month
+    - [ ] Redesign `BalanceHorizonScreen` as a side-by-side month list (Heatmap style)
 - [ ] Verification
-    - [ ] Test applying calculator average to spreadsheet
-    - [ ] Verify metrics calculation on Dashboard
+    - [ ] Build and run
+    - [ ] Verify cumulative math across all screens
+    - [ ] Test the new "Horizonte" side-by-side view

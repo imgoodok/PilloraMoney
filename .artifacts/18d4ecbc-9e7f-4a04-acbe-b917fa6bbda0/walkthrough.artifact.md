@@ -1,27 +1,31 @@
-# PilloraMoney - Advanced Dashboard & Calculator Sync Walkthrough
+# PilloraMoney - Theming & "Totais!" Refinement Walkthrough
 
-O **PilloraMoney** agora está com o sistema de sincronização da calculadora 100% funcional e um Dashboard profissional idêntico ao solicitado.
+O app **PilloraMoney** acaba de ser finalizado com suporte a temas, uma Home ultra inteligente batizada de **"Totais!"** e refinamentos de design solicitados para uma experiência mobile de elite.
 
-## O que foi corrigido e aprimorado
+## Principais Atualizações
 
-### 1. Sincronização de Gasto Diário (FIXED)
-- **Correção de Lógica:** O botão "Aplicar à Projeção" agora gera corretamente os gastos diários para os próximos **10 anos** (3.650 registros) começando desde o 1º dia do mês atual.
-- **Performance Industrial:** Implementei a inserção em lote (`insertTransactions`), o que torna a aplicação do valor instantânea, sem travar o app.
-- **Feedback ao Usuário:** Adicionei uma barra de aviso (Snackbar) que confirma quando os valores foram aplicados ou removidos.
+### 1. Novo Nome e Inteligência: "Totais!"
+- **Navegação Mensal:** Agora você pode navegar entre os meses diretamente na Home (**Totais!**). Todas as métricas de performance e economia se ajustam instantaneamente ao mês selecionado.
+- **Card de Performance Expansível:** Ao clicar, você vê o fechamento completo do mês com pontos coloridos identificando cada categoria (Verde: Entrada, Vermelho: Saída, Magenta: Diário, Azul: Economia, Laranja: Cartão).
+- **Custo de Vida Detalhado:** O card de custo de vida agora expande para mostrar o peso das Contas fixas, Gastos Diários e Faturas de Cartão no seu orçamento.
+- **Comparativo Diário Real:** Refinei o cálculo do Diário Médio para comparar o que você planejou na calculadora com o que realmente aconteceu no mês.
 
-### 2. Novo Dashboard "Cálculos do Mês"
-Redesenhei a tela Home para seguir fielmente o layout de performance financeira:
-- **Seção Performance:** Mostra o resultado líquido do mês com status dinâmico e indicadores visuais coloridos.
-- **Seção Economizado:** Inclui barra de progresso nativa e porcentagem de economia sobre a renda.
-- **Seção Custo de Vida:** Monitoramento total com aviso se você ultrapassar a sua renda do mês.
-- **Comparativo Diário:** Visualização lado a lado do seu gasto real do dia versus o planejado na calculadora.
+### 2. Suporte a Temas (Claro e Escuro)
+- **Tema Claro Nativo:** Criei uma paleta de cores clara elegante e nítida para uso em ambientes iluminados.
+- **Tela de Configurações:** Acesse pelo menu lateral para alternar entre Tema Claro, Escuro ou deixar o app seguir o Padrão do Sistema automaticamente. Sua escolha é salva no dispositivo.
 
-### 3. Gestão Inteligente de Lançamentos
-- **Limpeza Fácil:** Na calculadora, o botão "Limpar Projeção" remove especificamente os registros automáticos, permitindo que você redefina seu plano diário a qualquer momento sem duplicar dados.
+### 3. Gestão de Economias Aprimorada
+- **Sincronização Total:** Todos os valores de economia adicionados pela planilha agora aparecem corretamente na tela de detalhes de Economia.
+- **Metas Visuais:** Defina sua meta total e acompanhe a barra de progresso na Home, que agora reflete o valor acumulado real.
+
+### 4. Ajustes de Design e Navegação
+- **Menu Lateral Fino:** Reduzi a largura do Drawer para **250dp**, deixando-o mais elegante e menos invasivo.
+- **TopBars Corrigidas:** Ajustei o posicionamento das barras de topo na Calculadora e Economia, resolvendo o problema de estarem "muito baixas".
+- **Horizonte Panorama:** A grade agora projeta os próximos **12 meses** completos por padrão.
 
 ---
 > [!TIP]
-> O segredo de uma boa gestão financeira é a consistência. Aplique seu valor diário planejado na **Calculadora** e use o novo **Dashboard** para ver se você está conseguindo manter essa meta!
+> Vá em **Configurações** no menu lateral para testar o novo **Tema Claro**. O app se transforma completamente!
 
 > [!NOTE]
-> Todos os cálculos agora são feitos com precisão de milissegundos, garantindo que as somas na planilha e no dashboard batam 100%.
+> A coluna **CARTÃO** voltou para a planilha de Projeção, permitindo que você visualize esses lançamentos de forma dedicada novamente.

@@ -12,24 +12,18 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
-data class MonthProjection(
+data class DayBalance(
+    val day: Int,
+    val balance: Double
+)
+
+data class MonthProjectionGrid(
     val monthName: String,
-    val initialBalance: Double,
-    val entries: Double,
-    val expenses: Double,
-    val dailyExpenses: Double,
-    val cards: Double,
-    val savings: Double,
-    val finalBalance: Double,
-    val minBalanceOfMonth: Double
+    val days: List<DayBalance>
 )
 
 data class HorizonUiState(
-    val projections: List<MonthProjection> = emptyList(),
-    val bestMonth: String = "",
-    val bestMonthValue: Double = 0.0,
-    val worstBalance: Double = 0.0,
-    val firstNegativeMonth: String? = null
+    val months: List<MonthProjectionGrid> = emptyList()
 )
 
 @HiltViewModel
@@ -45,66 +39,52 @@ class BalanceHorizonViewModel @Inject constructor(
         calculateProjections()
     }
 
-    private fun calculateProjections() {
+    fun calculateProjections() {
         viewModelScope.launch {
-            // This is a complex calculation. We need to iterate through N months.
-            // For now, let's do 12 months.
-            val result = mutableListOf<MonthProjection>()
+            val monthsToProject = 12
+            val result = mutableListOf<MonthProjectionGrid>()
             val calendar = Calendar.getInstance()
             
-            // Get current month's initial balance as starting point
             val currentMonthKey = String.format("%d-%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1)
             var runningBalance = monthlyBalanceDao.getBalanceForMonth(currentMonthKey)?.initialBalance ?: 0.0
 
-            for (i in 0 until 12) {
+            for (m in 0 until monthsToProject) {
                 val monthName = String.format(Locale("pt", "BR"), "%s/%02d", 
                     calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale("pt", "BR")),
                     calendar.get(Calendar.YEAR) % 100
-                ).uppercase()
+                ).replaceFirstChar { it.uppercase() }
 
-                // Calculate current month's totals
                 calendar.set(Calendar.DAY_OF_MONTH, 1)
                 val start = calendar.timeInMillis
-                calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+                val maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                calendar.set(Calendar.DAY_OF_MONTH, maxDay)
                 val end = calendar.timeInMillis
                 
-                // We use a simplified blocking call or just wait for flow first item for projection logic
-                // In a real app, this would be a more efficient combined query.
                 val monthTxs = transactionDao.getTransactionsInRange(start, end).first()
+                val dayBalances = mutableListOf<DayBalance>()
 
-                val ent = monthTxs.filter { it.type == TransactionType.ENTRADA }.sumOf { it.value }
-                val sai = monthTxs.filter { it.type == TransactionType.SAIDA }.sumOf { it.value }
-                val dia = monthTxs.filter { it.type == TransactionType.DIARIO }.sumOf { it.value }
-                val car = monthTxs.filter { it.type == TransactionType.CARTAO }.sumOf { it.value }
-                val eco = monthTxs.filter { it.type == TransactionType.ECONOMIA }.sumOf { it.value }
-
-                val final = runningBalance + ent - sai - dia - car - eco
+                for (d in 1..maxDay) {
+                    val dayTxs = monthTxs.filter {
+                        val cal = Calendar.getInstance().apply { timeInMillis = it.date }
+                        cal.get(Calendar.DAY_OF_MONTH) == d
+                    }
+                    
+                    val dayIn = dayTxs.filter { it.type == TransactionType.ENTRADA }.sumOf { it.value }
+                    val dayOut = dayTxs.filter { 
+                        it.type == TransactionType.SAIDA || 
+                        it.type == TransactionType.DIARIO || 
+                        it.type == TransactionType.ECONOMIA 
+                    }.sumOf { it.value }
+                    
+                    runningBalance += (dayIn - dayOut)
+                    dayBalances.add(DayBalance(d, runningBalance))
+                }
                 
-                result.add(MonthProjection(
-                    monthName = monthName,
-                    initialBalance = runningBalance,
-                    entries = ent,
-                    expenses = sai,
-                    dailyExpenses = dia,
-                    cards = car,
-                    savings = eco,
-                    finalBalance = final,
-                    minBalanceOfMonth = Math.min(runningBalance, final) // Simplified min
-                ))
-
-                runningBalance = final
+                result.add(MonthProjectionGrid(monthName, dayBalances))
                 calendar.add(Calendar.MONTH, 1)
             }
 
-            _uiState.update { 
-                it.copy(
-                    projections = result,
-                    bestMonth = result.maxByOrNull { it.finalBalance }?.monthName ?: "",
-                    bestMonthValue = result.maxByOrNull { it.finalBalance }?.finalBalance ?: 0.0,
-                    worstBalance = result.minByOrNull { it.finalBalance }?.finalBalance ?: 0.0,
-                    firstNegativeMonth = result.firstOrNull { it.finalBalance < 0 }?.monthName
-                )
-            }
+            _uiState.update { it.copy(months = result) }
         }
     }
 }

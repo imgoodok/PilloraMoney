@@ -15,6 +15,9 @@ sealed class Screen {
     
     @Serializable
     data object AddTransaction : Screen() // "Lançamentos"
+
+    @Serializable
+    data object SavingsDetail : Screen() // "Detalhes de Economia"
     
     @Serializable
     data object Calculator : Screen()

@@ -1,15 +1,18 @@
 package com.example.pilloramoney
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -28,21 +31,37 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PilloraMoneyTheme {
-                PilloraApp()
+            val context = LocalContext.current
+            val sharedPrefs = remember { context.getSharedPreferences("prefs", Context.MODE_PRIVATE) }
+            var themePref by remember { mutableStateOf(sharedPrefs.getString("theme", "System") ?: "System") }
+            
+            val darkTheme = when (themePref) {
+                "Light" -> false
+                "Dark" -> true
+                else -> isSystemInDarkTheme()
+            }
+
+            PilloraMoneyTheme(darkTheme = darkTheme) {
+                PilloraApp(
+                    currentTheme = themePref,
+                    onThemeChange = { newTheme ->
+                        themePref = newTheme
+                        sharedPrefs.edit().putString("theme", newTheme).apply()
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun PilloraApp() {
+fun PilloraApp(currentTheme: String, onThemeChange: (String) -> Unit) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route
-    val currentRoute = currentDestination?.substringAfterLast(".") // Simple way to get the class name
+    val currentRoute = currentDestination?.substringAfterLast(".")
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -81,7 +100,10 @@ fun PilloraApp() {
                     startDestination = Screen.Home
                 ) {
                     composable<Screen.Home> {
-                        HomeScreen()
+                        HomeScreen(
+                            onOpenDrawer = { scope.launch { drawerState.open() } },
+                            onNavigateToSavings = { navController.navigate(Screen.SavingsDetail) }
+                        )
                     }
                     composable<Screen.Spreadsheet> {
                         SpreadsheetScreen()
@@ -92,11 +114,18 @@ fun PilloraApp() {
                     composable<Screen.AddTransaction> {
                         AddTransactionScreen()
                     }
+                    composable<Screen.SavingsDetail> {
+                        SavingsDetailScreen(onBack = { navController.popBackStack() })
+                    }
                     composable<Screen.Calculator> {
                         CalculatorScreen()
                     }
                     composable<Screen.Settings> {
-                        SettingsScreen()
+                        SettingsScreen(
+                            currentTheme = currentTheme,
+                            onThemeChange = onThemeChange,
+                            onBack = { navController.popBackStack() }
+                        )
                     }
                 }
             }
