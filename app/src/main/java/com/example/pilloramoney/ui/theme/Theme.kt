@@ -13,10 +13,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DeepDarkColorScheme = darkColorScheme(
-    primary = PrimaryBlue,
+    primary = PrimaryOrange,
     onPrimary = Color.White,
-    primaryContainer = PrimaryBlue.copy(alpha = 0.2f),
-    onPrimaryContainer = PrimaryBlue,
+    primaryContainer = PrimaryOrange.copy(alpha = 0.2f),
+    onPrimaryContainer = PrimaryOrange,
     secondary = TextSecondary,
     onSecondary = Color.White,
     background = BackgroundDark,
@@ -32,10 +32,10 @@ private val DeepDarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryBlue,
+    primary = PrimaryOrange,
     onPrimary = Color.White,
-    primaryContainer = PrimaryBlue.copy(alpha = 0.1f),
-    onPrimaryContainer = PrimaryBlue,
+    primaryContainer = PrimaryOrange.copy(alpha = 0.1f),
+    onPrimaryContainer = PrimaryOrange,
     secondary = TextSecondaryLight,
     onSecondary = Color.White,
     background = BackgroundLight,

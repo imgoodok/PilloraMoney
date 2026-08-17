@@ -1,0 +1,5 @@
+- [x] Create Google logo vector drawable (`ic_google_logo.xml`)
+- [x] Add Google icon to `LoginScreen.kt` button
+- [x] Implement numeric-only filtering for "Valor" in `SpreadsheetScreen.kt`
+- [x] Adjust bottom navigation icons vertical alignment in `PilloraBottomBar.kt`
+- [x] Verify build and UI refinements

@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -120,6 +121,13 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = authState !is AuthState.Loading
         ) {
+            Icon(
+                painter = androidx.compose.ui.res.painterResource(id = com.example.pilloramoney.R.drawable.ic_google_logo),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = Color.Unspecified
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             Text("Entrar com Google")
         }
 

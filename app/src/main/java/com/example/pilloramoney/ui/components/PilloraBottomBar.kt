@@ -1,7 +1,7 @@
 package com.example.pilloramoney.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
@@ -70,7 +70,7 @@ fun PilloraBottomBar(
         // Floating Action Button
         FloatingActionButton(
             onClick = onFabClick,
-            shape = CircleShape,
+            shape = RoundedCornerShape(16.dp),
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.White,
             modifier = Modifier
@@ -97,8 +97,15 @@ fun RowScope.BottomNavItem(
     NavigationBarItem(
         selected = isSelected,
         onClick = onClick,
-        icon = { Icon(icon, contentDescription = label) },
-        label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+        icon = { 
+            Icon(
+                icon, 
+                contentDescription = label,
+                modifier = Modifier.offset(y = (-4).dp)
+            ) 
+        },
+        label = null,
+        alwaysShowLabel = false,
         colors = NavigationBarItemDefaults.colors(
             indicatorColor = MaterialTheme.colorScheme.primaryContainer,
             selectedIconColor = MaterialTheme.colorScheme.primary,

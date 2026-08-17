@@ -166,6 +166,12 @@ fun CompactSpreadsheetHeader(scrollState: ScrollState) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        VerticalDivider(
+            modifier = Modifier.height(20.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
         
         Row(
             modifier = Modifier
@@ -178,6 +184,12 @@ fun CompactSpreadsheetHeader(scrollState: ScrollState) {
             HeaderCell("ECONOMIA")
             HeaderCell("CARTÃO") // RE-ADDED
         }
+
+        VerticalDivider(
+            modifier = Modifier.height(20.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
         
         Text(
             "SALDO",
@@ -230,6 +242,12 @@ fun CompactSpreadsheetRow(
             )
         }
 
+        VerticalDivider(
+            modifier = Modifier.height(32.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+
         // Scrollable Values
         Row(
             modifier = Modifier
@@ -241,9 +259,15 @@ fun CompactSpreadsheetRow(
             DataCell(transactions.filter { it.type == TransactionType.ENTRADA }, SuccessGreen, currencyFormat) { onCellClick(TransactionType.ENTRADA) }
             DataCell(transactions.filter { it.type == TransactionType.SAIDA }, ErrorRed, currencyFormat) { onCellClick(TransactionType.SAIDA) }
             DataCell(transactions.filter { it.type == TransactionType.DIARIO }, Color.Magenta, currencyFormat) { onCellClick(TransactionType.DIARIO) }
-            DataCell(transactions.filter { it.type == TransactionType.ECONOMIA }, PrimaryBlue, currencyFormat) { onCellClick(TransactionType.ECONOMIA) }
+            DataCell(transactions.filter { it.type == TransactionType.ECONOMIA }, PrimaryOrange, currencyFormat) { onCellClick(TransactionType.ECONOMIA) }
             DataCell(transactions.filter { it.type == TransactionType.CARTAO }, WarningOrange, currencyFormat) { onCellClick(TransactionType.CARTAO) }
         }
+
+        VerticalDivider(
+            modifier = Modifier.height(32.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
 
         // Fixed Saldo
         Box(
@@ -335,14 +359,14 @@ fun DayDetailsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Detalhes de $typeName - Dia $day") },
+        title = { Text("Detalhes de $typeName - Dia $day", style = MaterialTheme.typography.titleMedium) },
         text = {
             Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
                 if (existingItems.isNotEmpty()) {
-                    Text("Lançamentos Existentes:", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    Text("Lançamentos Existentes:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                     existingItems.forEach { item ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -350,42 +374,49 @@ fun DayDetailsDialog(
                                 Text(item.description.ifEmpty { "Sem descrição" }, style = MaterialTheme.typography.bodySmall)
                                 Text(currencyFormat.format(item.value), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                             }
-                            IconButton(onClick = { onDelete(item) }) {
-                                Icon(Icons.Default.Delete, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(20.dp))
+                            IconButton(onClick = { onDelete(item) }, modifier = Modifier.size(32.dp)) {
+                                Icon(Icons.Default.Delete, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(18.dp))
                             }
                         }
                     }
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 }
 
-                Text("Adicionar Novo:", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Adicionar Novo:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = value,
-                    onValueChange = { value = it },
-                    label = { Text("Valor") },
+                    onValueChange = { input ->
+                        if (input.isEmpty() || input.matches(Regex("^\\d*[.,]?\\d*\$"))) {
+                            value = input.replace(",", ".")
+                        }
+                    },
+                    label = { Text("Valor", style = MaterialTheme.typography.bodySmall) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyMedium
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descrição") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Descrição", style = MaterialTheme.typography.bodySmall) },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyMedium
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Repetição", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Repetição", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 RepetitionDropdown(repetition) { repetition = it }
                 
                 if (repetition.contains("N meses") || repetition.contains("N dias")) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = numRepetitions,
                         onValueChange = { numRepetitions = it },
-                        label = { Text(if (repetition.contains("meses")) "Quantidade de meses" else "Quantidade de dias") },
+                        label = { Text(if (repetition.contains("meses")) "Meses" else "Dias", style = MaterialTheme.typography.bodySmall) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -396,11 +427,11 @@ fun DayDetailsDialog(
                 val n = numRepetitions.toIntOrNull() ?: 1
                 onAdd(v, description, repetition, n)
             }) {
-                Text("Salvar Novo")
+                Text("Salvar", style = MaterialTheme.typography.labelLarge)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Fechar") }
+            TextButton(onClick = onDismiss) { Text("Fechar", style = MaterialTheme.typography.labelLarge) }
         }
     )
 }

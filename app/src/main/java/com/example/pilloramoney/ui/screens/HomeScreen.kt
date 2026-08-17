@@ -117,7 +117,7 @@ fun HomeScreen(
                     SuccessGreen to "E",
                     ErrorRed to "S",
                     Color.Magenta to "D",
-                    PrimaryBlue to "Ec",
+                    PrimaryOrange to "Ec",
                     WarningOrange to "C"
                 )
             )
@@ -134,7 +134,7 @@ fun HomeScreen(
                     ExpandedMetricItem("Entradas", uiState.monthEntries, SuccessGreen, dotColor = SuccessGreen, initial = "E")
                     ExpandedMetricItem("Saídas", uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed, initial = "S")
                     ExpandedMetricItem("Diário Médio", uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta, initial = "D")
-                    ExpandedMetricItem("Economizado", uiState.monthSavings, PrimaryBlue, dotColor = PrimaryBlue, initial = "Ec")
+                    ExpandedMetricItem("Economizado", uiState.monthSavings, PrimaryOrange, dotColor = PrimaryOrange, initial = "Ec")
                     ExpandedMetricItem("Cartão", uiState.cardExpenses, WarningOrange, dotColor = WarningOrange, initial = "C")
                     
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -153,7 +153,7 @@ fun HomeScreen(
                 label = "Economizado",
                 percentage = uiState.savingsPercentage,
                 status = if (uiState.totalSavingsAccumulated >= uiState.savingsGoal && uiState.savingsGoal > 0) "Meta batida!" else "Guardando...",
-                color = PrimaryBlue,
+                color = PrimaryOrange,
                 currentValue = uiState.totalSavingsAccumulated,
                 goalValue = uiState.savingsGoal,
                 initial = "Ec"
