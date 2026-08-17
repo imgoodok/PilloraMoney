@@ -10,7 +10,7 @@ import com.example.pilloramoney.data.model.Transaction
 
 @Database(
     entities = [Transaction::class, CalculatorItem::class, MonthlyBalance::class, FinancialGoal::class],
-    version = 3, 
+    version = 4, 
     exportSchema = false
 )
 @TypeConverters(Converters::class)

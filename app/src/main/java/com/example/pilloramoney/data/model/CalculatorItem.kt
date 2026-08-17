@@ -10,6 +10,7 @@ enum class Frequency {
 @Entity(tableName = "calculator_items")
 data class CalculatorItem(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val userId: String,
     val name: String,
     val value: Double,
     val frequency: Frequency

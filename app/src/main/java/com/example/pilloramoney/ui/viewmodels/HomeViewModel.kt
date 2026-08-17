@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pilloramoney.data.local.GoalDao
 import com.example.pilloramoney.data.local.TransactionDao
 import com.example.pilloramoney.data.model.TransactionType
+import com.example.pilloramoney.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -30,8 +31,12 @@ data class HomeUiState(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
-    private val goalDao: GoalDao
+    private val goalDao: GoalDao,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
+
+    private val currentUserId: String
+        get() = authRepository.currentUser?.uid ?: "ANONYMOUS"
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -55,6 +60,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun observeData() {
+        val userId = currentUserId
         val calendar = _uiState.value.selectedMonth.clone() as Calendar
         val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         val isCurrentMonth = isSameMonth(calendar, Calendar.getInstance())
@@ -67,9 +73,9 @@ class HomeViewModel @Inject constructor(
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         val end = calendar.timeInMillis
 
-        val transactionsFlow = transactionDao.getTransactionsInRange(start, end)
-        val goalFlow = goalDao.getSavingsGoal()
-        val allTimeSavingsFlow = transactionDao.getTotalSavingsSum().map { it ?: 0.0 }
+        val transactionsFlow = transactionDao.getTransactionsInRange(userId, start, end)
+        val goalFlow = goalDao.getSavingsGoal(userId)
+        val allTimeSavingsFlow = transactionDao.getTotalSavingsSum(userId).map { it ?: 0.0 }
 
         combine(transactionsFlow, goalFlow, allTimeSavingsFlow) { transactions, goalObj, totalAccumulated ->
             val entries = transactions.filter { it.type == TransactionType.ENTRADA }.sumOf { it.value }

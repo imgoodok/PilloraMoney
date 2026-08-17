@@ -7,6 +7,7 @@ import com.example.pilloramoney.data.local.TransactionDao
 import com.example.pilloramoney.data.model.FinancialGoal
 import com.example.pilloramoney.data.model.Transaction
 import com.example.pilloramoney.data.model.TransactionType
+import com.example.pilloramoney.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,8 +23,12 @@ data class SavingsUiState(
 @HiltViewModel
 class SavingsViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
-    private val goalDao: GoalDao
+    private val goalDao: GoalDao,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
+
+    private val currentUserId: String
+        get() = authRepository.currentUser?.uid ?: "ANONYMOUS"
 
     private val _uiState = MutableStateFlow(SavingsUiState())
     val uiState: StateFlow<SavingsUiState> = _uiState.asStateFlow()
@@ -33,10 +38,11 @@ class SavingsViewModel @Inject constructor(
     }
 
     private fun loadSavingsData() {
+        val userId = currentUserId
         // Load all time savings
-        val savingsFlow = transactionDao.getAllSavings()
+        val savingsFlow = transactionDao.getAllSavings(userId)
 
-        val goalFlow = goalDao.getSavingsGoal().map { it?.targetValue ?: 0.0 }
+        val goalFlow = goalDao.getSavingsGoal(userId).map { it?.targetValue ?: 0.0 }
 
         combine(savingsFlow, goalFlow) { history, goal ->
             val total = history.sumOf { it.value }
@@ -52,8 +58,9 @@ class SavingsViewModel @Inject constructor(
     }
 
     fun updateGoal(value: Double) {
+        val userId = currentUserId
         viewModelScope.launch {
-            goalDao.upsertGoal(FinancialGoal(targetValue = value))
+            goalDao.upsertGoal(FinancialGoal(userId = userId, targetValue = value))
         }
     }
 

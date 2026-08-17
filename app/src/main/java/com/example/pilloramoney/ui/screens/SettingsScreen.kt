@@ -10,8 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pilloramoney.notifications.NotificationScheduler
 import com.example.pilloramoney.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,8 +21,11 @@ import com.example.pilloramoney.ui.theme.*
 fun SettingsScreen(
     currentTheme: String,
     onThemeChange: (String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -57,6 +62,41 @@ fun SettingsScreen(
                     ThemeOption("Escuro", currentTheme == "Dark") { onThemeChange("Dark") }
                     ThemeOption("Padrão do Sistema", currentTheme == "System") { onThemeChange("System") }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Notificações",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Button(
+                onClick = { NotificationScheduler.runTestNotification(context) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Testar Notificações AGORA")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Conta",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            OutlinedButton(
+                onClick = onLogout,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Sair da Conta")
             }
             
             Spacer(modifier = Modifier.weight(1f))

@@ -10,6 +10,7 @@ enum class TransactionType {
 @Entity(tableName = "transactions")
 data class Transaction(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val userId: String, // Link to Firebase User UID
     val date: Long, // Epoch timestamp for the specific day
     val type: TransactionType,
     val value: Double,

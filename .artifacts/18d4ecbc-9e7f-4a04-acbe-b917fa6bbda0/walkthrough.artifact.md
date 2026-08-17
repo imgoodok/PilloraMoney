@@ -1,31 +1,40 @@
-# PilloraMoney - Theming & "Totais!" Refinement Walkthrough
+# PilloraMoney - Notifications & UI Insights Walkthrough
 
-O app **PilloraMoney** acaba de ser finalizado com suporte a temas, uma Home ultra inteligente batizada de **"Totais!"** e refinamentos de design solicitados para uma experiência mobile de elite.
+O **PilloraMoney** agora conta com um sistema de notificações nativo e uma interface ainda mais detalhada e intuitiva, facilitando a identificação rápida de cada métrica financeira.
 
-## Principais Atualizações
+## Novidades e Melhorias
 
-### 1. Novo Nome e Inteligência: "Totais!"
-- **Navegação Mensal:** Agora você pode navegar entre os meses diretamente na Home (**Totais!**). Todas as métricas de performance e economia se ajustam instantaneamente ao mês selecionado.
-- **Card de Performance Expansível:** Ao clicar, você vê o fechamento completo do mês com pontos coloridos identificando cada categoria (Verde: Entrada, Vermelho: Saída, Magenta: Diário, Azul: Economia, Laranja: Cartão).
-- **Custo de Vida Detalhado:** O card de custo de vida agora expande para mostrar o peso das Contas fixas, Gastos Diários e Faturas de Cartão no seu orçamento.
-- **Comparativo Diário Real:** Refinei o cálculo do Diário Médio para comparar o que você planejou na calculadora com o que realmente aconteceu no mês.
+### 1. Sistema de Notificações Android
+- **Permissões em Tempo Real:** Ao abrir o app pela primeira vez (no Android 13+), o sistema agora solicita permissão para enviar notificações, garantindo transparência.
+- **Notificações de Boas-vindas:** Implementei 2 alertas de teste que aparecem após a permissão:
+    1. **Bem-vindo:** Um lembrete motivacional para começar seu planejamento.
+    2. **Dica do dia:** Sugestão prática para manter seus gastos sob controle.
+- **Arquitetura Pronta:** Criei o `PilloraNotificationManager` que centraliza a criação e remoção de notificações, facilitando a adição de novos alertas programados no futuro.
 
-### 2. Suporte a Temas (Claro e Escuro)
-- **Tema Claro Nativo:** Criei uma paleta de cores clara elegante e nítida para uso em ambientes iluminados.
-- **Tela de Configurações:** Acesse pelo menu lateral para alternar entre Tema Claro, Escuro ou deixar o app seguir o Padrão do Sistema automaticamente. Sua escolha é salva no dispositivo.
+### 2. Identificação Visual por Iniciais
+- **Círculos Inteligentes:** Para uma leitura instantânea, todos os pontos coloridos da Home agora possuem a **letra inicial** da categoria:
+    - **E** (Verde): Entrada
+    - **S** (Vermelho): Saída
+    - **D** (Magenta): Diário
+    - **Ec** (Azul): Economia
+    - **C** (Laranja): Cartão
+- **Consistência:** Essa identificação aparece tanto nos cards fechados quanto nas listas detalhadas (expandidas).
 
-### 3. Gestão de Economias Aprimorada
-- **Sincronização Total:** Todos os valores de economia adicionados pela planilha agora aparecem corretamente na tela de detalhes de Economia.
-- **Metas Visuais:** Defina sua meta total e acompanhe a barra de progresso na Home, que agora reflete o valor acumulado real.
+### 3. Dashboard "Totais!" Ultra Detalhado
+- **Custo de Vida Expansível:** O card de Custo de Vida agora abre para detalhar seus gastos em Contas/Saídas fixas, Gastos Diários e Cartão de Crédito.
+- **Análise do Diário Médio:** Ao expandir a seção de Diário Médio, você verá um comparativo direto:
+    - **Média Planejada:** O valor definido na sua calculadora.
+    - **Média Real:** O quanto você realmente gastou até o momento.
+    - **Diferença:** O valor exato que você está acima ou abaixo da sua meta diária.
 
-### 4. Ajustes de Design e Navegação
-- **Menu Lateral Fino:** Reduzi a largura do Drawer para **250dp**, deixando-o mais elegante e menos invasivo.
-- **TopBars Corrigidas:** Ajustei o posicionamento das barras de topo na Calculadora e Economia, resolvendo o problema de estarem "muito baixas".
-- **Horizonte Panorama:** A grade agora projeta os próximos **12 meses** completos por padrão.
+## Guia de Notificações para Desenvolvedor
+Para criar ou remover notificações programaticamente, use as funções no `PilloraNotificationManager`:
+- **Criar:** `PilloraNotificationManager.sendNotification(context, id, "Título", "Mensagem")`
+- **Remover:** `PilloraNotificationManager.cancelNotification(context, id)`
 
 ---
 > [!TIP]
-> Vá em **Configurações** no menu lateral para testar o novo **Tema Claro**. O app se transforma completamente!
+> Use a expansão do **Diário Médio** para ajustar seus hábitos no meio do mês. Se a diferença estiver em vermelho (acima), você sabe que precisa economizar um pouco mais nos próximos dias!
 
-> [!NOTE]
-> A coluna **CARTÃO** voltou para a planilha de Projeção, permitindo que você visualize esses lançamentos de forma dedicada novamente.
+> [!IMPORTANT]
+> A barra de economia agora está 100% sincronizada com a sua meta real definida na tela de Detalhes de Economia.

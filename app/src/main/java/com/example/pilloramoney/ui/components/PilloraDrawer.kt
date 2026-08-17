@@ -22,8 +22,10 @@ import com.example.pilloramoney.ui.theme.*
 
 @Composable
 fun PilloraDrawer(
+    userEmail: String,
     onNavigate: (Any) -> Unit,
-    closeDrawer: () -> Unit
+    closeDrawer: () -> Unit,
+    onLogout: () -> Unit
 ) {
     ModalDrawerSheet(
         modifier = Modifier.width(250.dp), // Thinner drawer
@@ -46,7 +48,7 @@ fun PilloraDrawer(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
-                            text = "P",
+                            text = if (userEmail.isNotEmpty()) userEmail.take(1).uppercase() else "P",
                             color = Color.White,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
@@ -55,12 +57,12 @@ fun PilloraDrawer(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Pillora Money",
+                    text = if (userEmail.isNotEmpty()) userEmail.split("@")[0] else "Pillora Money",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Gestão Financeira Pro",
+                    text = userEmail.ifEmpty { "Gestão Financeira Pro" },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -111,7 +113,7 @@ fun PilloraDrawer(
             label = "Sair",
             color = MaterialTheme.colorScheme.error
         ) {
-            /* Logout */
+            onLogout()
         }
         Spacer(modifier = Modifier.height(16.dp))
     }

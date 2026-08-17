@@ -1,46 +1,41 @@
-# Implementation Plan - Theming, Totais! & Final UX Polishing
+# Implementation Plan - Notification System & UI Insight Upgrade
 
-Finalize the transition to a mobile-native experience with a dedicated Light Theme, refined Home screen (Totais!) insights, and drawer improvements.
+Initialize a native notification system and refine the Home screen (Totais!) with smarter expandable cards, including category initials inside colored dots for instant recognition.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Theme Management:** I will implement a Theme repository to persist your choice (Light/Dark/System). This will be managed in the new "Configurações" screen.
+> **Notifications Permission:** On Android 13 (API 33) and above, a permission dialog will appear immediately when opening the app to allow "Pillora Money" to send notifications.
 >
 > [!NOTE]
-> **Performance Calculation:** "Diário Médio" logic will be refined to reflect real spending (Current Month Expenses / Days Passed) vs. your Goal.
+> **Category Initials:** I will use the following shorthand: 'E' (Entrada), 'S' (Saída), 'D' (Diário), 'C' (Cartão), 'Ec' (Economia). These will appear inside the colored circles.
 
 ## Proposed Changes
 
-### 1. Theming (Light & Dark Support)
-* **[MODIFY] [Color.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/theme/Color.kt)**: Define a clean light palette (Background: `#F3F4F6`, Surfaces: `#FFFFFF`).
-* **[MODIFY] [Theme.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/theme/Theme.kt)**:
-    * Add `LightColorScheme`.
-    * Implement a global state or repository to toggle between schemes.
-* **[NEW] [SettingsScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/SettingsScreen.kt)**: Screen with theme selectors.
+### 1. Notification System
+* **[NEW] [PilloraNotificationManager.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/notifications/PilloraNotificationManager.kt)**:
+    * Create a singleton class to manage notification channels (Alerts, Reminders).
+    * Implement helper functions to post test notifications and clear them.
+* **[MODIFY] [MainActivity.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/MainActivity.kt)**:
+    * Implement the permission request logic using `ActivityResultLauncher`.
+    * Trigger two test notifications ("Bem-vindo" and "Dica do dia") after permission is granted.
 
-### 2. Home (Totais!) Refinements
+### 2. Home Screen (Totais!) Expansion
 * **[MODIFY] [HomeScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/HomeScreen.kt)**:
-    * **Rename:** Header now says "Totais!".
-    * **Performance Card:** Fix missing green dot for Income. Add "Cartão" to expanded details.
-    * **Custo de Vida Card:** Implement expandable details (Bills, Daily, Card).
-    * **Diário Médio Card:** Expand to show detailed comparison (Real vs. Planned vs. Gap).
-    * **Drawer Button:** Move to the **top-left** (as requested).
+    * **Category Dots:** Update the `Box` rendering the colored dots to include a `Text` element with the category initial.
+    * **Expandable Custo de Vida:** Add `AnimatedVisibility` and a breakdown of bills, daily expenses, and card usage.
+    * **Expandable Diário Médio:** Show a detailed comparison between Planned (Goal) vs. Real, including the "gap" amount and status.
 * **[MODIFY] [HomeViewModel.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/viewmodels/HomeViewModel.kt)**:
-    * Implement month selection logic (`nextMonth()`, `previousMonth()`).
-    * Refine daily average calculation.
+    * Ensure the `savingsPercentage` calculation correctly uses the `savingsGoal` from the database.
 
-### 3. Drawer & UI Cleanup
-* **[MODIFY] [PilloraDrawer.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/components/PilloraDrawer.kt)**:
-    * Reduce drawer width (set `maxWidth` to ~280dp).
-    * Link the "Configurações" button.
-* **[MODIFY] [SavingsDetailScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/SavingsDetailScreen.kt)** & **[CalculatorScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/CalculatorScreen.kt)**:
-    * Fix TopBar overlap/positioning.
+### 3. Savings Integration (FIX)
+* **[MODIFY] [HomeViewModel.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/viewmodels/HomeViewModel.kt)**:
+    * Fix the flow observation for all categories to ensure "Economia" transactions from any source are accounted for in the Home totals.
 
 ## Verification Plan
 
 ### Manual Verification
-1. **Theming:** Toggle between Light and Dark in Settings. Verify all screens adapt.
-2. **Totais! Logic:** Change the month on Home. Verify all expanded cards update their values accordingly.
-3. **Drawer:** Verify the narrower width and top-left trigger.
-4. **Calculations:** Verify "Diário Médio" expansion shows correct math.
+1. **Notifications:** Open the app, grant permission, and check the notification shade for the two test alerts.
+2. **Category Dots:** Check the Performance card; verify that circles have letters inside (e.g., 'E', 'S').
+3. **Expandables:** Click on "Custo de Vida" and "Diário Médio" to verify they show the detailed breakdown correctly.
+4. **Savings Sync:** Add an economy item in the Spreadsheet and verify the "Economizado" percentage on Home updates correctly.

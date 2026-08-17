@@ -16,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -111,7 +113,13 @@ fun HomeScreen(
                 value = uiState.totalBalance,
                 status = uiState.performanceStatus,
                 color = if (uiState.totalBalance < 0) ErrorRed else SuccessGreen,
-                icons = listOf(SuccessGreen, ErrorRed, Color.Magenta, PrimaryBlue, WarningOrange)
+                iconsWithInitials = listOf(
+                    SuccessGreen to "E",
+                    ErrorRed to "S",
+                    Color.Magenta to "D",
+                    PrimaryBlue to "Ec",
+                    WarningOrange to "C"
+                )
             )
             
             AnimatedVisibility(visible = isPerformanceExpanded) {
@@ -123,11 +131,11 @@ fun HomeScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ExpandedMetricItem("Entradas", uiState.monthEntries, SuccessGreen, dotColor = SuccessGreen)
-                    ExpandedMetricItem("Saídas", uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed)
-                    ExpandedMetricItem("Diário Médio", uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta)
-                    ExpandedMetricItem("Economizado", uiState.monthSavings, PrimaryBlue, dotColor = PrimaryBlue)
-                    ExpandedMetricItem("Cartão", uiState.cardExpenses, WarningOrange, dotColor = WarningOrange)
+                    ExpandedMetricItem("Entradas", uiState.monthEntries, SuccessGreen, dotColor = SuccessGreen, initial = "E")
+                    ExpandedMetricItem("Saídas", uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed, initial = "S")
+                    ExpandedMetricItem("Diário Médio", uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta, initial = "D")
+                    ExpandedMetricItem("Economizado", uiState.monthSavings, PrimaryBlue, dotColor = PrimaryBlue, initial = "Ec")
+                    ExpandedMetricItem("Cartão", uiState.cardExpenses, WarningOrange, dotColor = WarningOrange, initial = "C")
                     
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     ExpandedMetricItem("Saldo Final", uiState.totalBalance, if (uiState.totalBalance < 0) ErrorRed else SuccessGreen, isBold = true)
@@ -147,7 +155,8 @@ fun HomeScreen(
                 status = if (uiState.totalSavingsAccumulated >= uiState.savingsGoal && uiState.savingsGoal > 0) "Meta batida!" else "Guardando...",
                 color = PrimaryBlue,
                 currentValue = uiState.totalSavingsAccumulated,
-                goalValue = uiState.savingsGoal
+                goalValue = uiState.savingsGoal,
+                initial = "Ec"
             )
         }
 
@@ -162,7 +171,11 @@ fun HomeScreen(
                 value = uiState.costOfLiving,
                 status = if (uiState.costOfLiving > uiState.monthEntries && uiState.monthEntries > 0) "Acima da renda" else "Dentro do esperado",
                 color = if (uiState.costOfLiving > uiState.monthEntries && uiState.monthEntries > 0) ErrorRed else MaterialTheme.colorScheme.onSurface,
-                icons = listOf(ErrorRed, Color.Magenta, WarningOrange)
+                iconsWithInitials = listOf(
+                    ErrorRed to "S",
+                    Color.Magenta to "D",
+                    WarningOrange to "C"
+                )
             )
             
             AnimatedVisibility(visible = isCustoVidaExpanded) {
@@ -174,9 +187,9 @@ fun HomeScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ExpandedMetricItem("Contas/Saídas", uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed)
-                    ExpandedMetricItem("Gastos Diários", uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta)
-                    ExpandedMetricItem("Faturas Cartão", uiState.cardExpenses, WarningOrange, dotColor = WarningOrange)
+                    ExpandedMetricItem("Contas/Saídas", uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed, initial = "S")
+                    ExpandedMetricItem("Gastos Diários", uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta, initial = "D")
+                    ExpandedMetricItem("Faturas Cartão", uiState.cardExpenses, WarningOrange, dotColor = WarningOrange, initial = "C")
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     ExpandedMetricItem("Total Custo de Vida", uiState.costOfLiving, ErrorRed, isBold = true)
                 }
@@ -193,9 +206,18 @@ fun HomeScreen(
                 Column {
                     Text("Diário médio", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
-                        Box(modifier = Modifier.size(12.dp).background(Color.Magenta, CircleShape))
-                        Text(" / O", style = MaterialTheme.typography.bodySmall, color = TextSecondary, modifier = Modifier.padding(start = 4.dp))
-                    }
+                                            Box(modifier = Modifier.size(20.dp).background(Color.Magenta, CircleShape), contentAlignment = Alignment.Center) {
+                                                Text(
+                                                    text = "D",
+                                                    color = Color.Black,
+                                                    fontSize = 14.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier.align(Alignment.Center)
+                                                )
+                                            }
+                                            Text(" / O", style = MaterialTheme.typography.bodySmall, color = TextSecondary, modifier = Modifier.padding(start = 8.dp))
+                                        }
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
@@ -257,13 +279,24 @@ fun DashboardCard(onClick: () -> Unit, content: @Composable ColumnScope.() -> Un
 }
 
 @Composable
-fun ExpandedMetricItem(label: String, value: Double, color: Color, dotColor: Color? = null, isBold: Boolean = false) {
+fun ExpandedMetricItem(label: String, value: Double, color: Color, dotColor: Color? = null, initial: String? = null, isBold: Boolean = false) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (dotColor != null) {
-                Box(modifier = Modifier.size(10.dp).background(dotColor, CircleShape))
-                Spacer(modifier = Modifier.width(12.dp))
-            }
+                            Box(modifier = Modifier.size(20.dp).background(dotColor, CircleShape), contentAlignment = Alignment.Center) {
+                    if (initial != null) {
+                                    Text(
+                                        initial,
+                                        color = Color.Black,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                        }
             Text(label, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
         }
         Text(
@@ -281,19 +314,29 @@ fun DashboardMetricRow(
     value: Double,
     status: String,
     color: Color,
-    icons: List<Color> = emptyList()
+    iconsWithInitials: List<Pair<Color, String>> = emptyList()
 ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Column(modifier = Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            if (icons.isNotEmpty()) {
+            if (iconsWithInitials.isNotEmpty()) {
                 Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    icons.forEach { dotColor ->
+                    iconsWithInitials.forEach { (dotColor, initial) ->
                         Box(
                             modifier = Modifier
-                                .size(14.dp)
-                                .background(dotColor, CircleShape)
-                        )
+                                                        .size(20.dp)
+                                .background(dotColor, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                                                    Text(
+                                                        initial,
+                                                        color = Color.Black,
+                                                        fontSize = 12.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        textAlign = TextAlign.Center,
+                                                        modifier = Modifier.align(Alignment.Center)
+                                                    )
+                                                }
                     }
                 }
             }
@@ -317,14 +360,24 @@ fun DashboardProgressMetric(
     status: String,
     color: Color,
     currentValue: Double,
-    goalValue: Double
+    goalValue: Double,
+    initial: String
 ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Column(modifier = Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.size(14.dp).background(color, CircleShape))
+                Box(modifier = Modifier.size(20.dp).background(color, CircleShape), contentAlignment = Alignment.Center) {
+                                    Text(
+                                        initial,
+                                        color = Color.Black,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
                 Spacer(modifier = Modifier.width(8.dp))
                 LinearProgressIndicator(
                     progress = { percentage.coerceIn(0f, 1f) },

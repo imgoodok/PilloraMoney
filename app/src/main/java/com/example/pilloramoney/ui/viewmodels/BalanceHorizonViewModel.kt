@@ -6,6 +6,7 @@ import com.example.pilloramoney.data.local.MonthlyBalanceDao
 import com.example.pilloramoney.data.local.TransactionDao
 import com.example.pilloramoney.data.model.Transaction
 import com.example.pilloramoney.data.model.TransactionType
+import com.example.pilloramoney.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -29,8 +30,12 @@ data class HorizonUiState(
 @HiltViewModel
 class BalanceHorizonViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
-    private val monthlyBalanceDao: MonthlyBalanceDao
+    private val monthlyBalanceDao: MonthlyBalanceDao,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
+
+    private val currentUserId: String
+        get() = authRepository.currentUser?.uid ?: "ANONYMOUS"
 
     private val _uiState = MutableStateFlow(HorizonUiState())
     val uiState: StateFlow<HorizonUiState> = _uiState.asStateFlow()
@@ -40,13 +45,14 @@ class BalanceHorizonViewModel @Inject constructor(
     }
 
     fun calculateProjections() {
+        val userId = currentUserId
         viewModelScope.launch {
             val monthsToProject = 12
             val result = mutableListOf<MonthProjectionGrid>()
             val calendar = Calendar.getInstance()
             
             val currentMonthKey = String.format("%d-%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1)
-            var runningBalance = monthlyBalanceDao.getBalanceForMonth(currentMonthKey)?.initialBalance ?: 0.0
+            var runningBalance = monthlyBalanceDao.getBalanceForMonth(userId, currentMonthKey)?.initialBalance ?: 0.0
 
             for (m in 0 until monthsToProject) {
                 val monthName = String.format(Locale("pt", "BR"), "%s/%02d", 
@@ -60,7 +66,7 @@ class BalanceHorizonViewModel @Inject constructor(
                 calendar.set(Calendar.DAY_OF_MONTH, maxDay)
                 val end = calendar.timeInMillis
                 
-                val monthTxs = transactionDao.getTransactionsInRange(start, end).first()
+                val monthTxs = transactionDao.getTransactionsInRange(userId, start, end).first()
                 val dayBalances = mutableListOf<DayBalance>()
 
                 for (d in 1..maxDay) {

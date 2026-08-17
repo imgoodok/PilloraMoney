@@ -1,10 +1,15 @@
 package com.example.pilloramoney
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,28 +18,50 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.pilloramoney.navigation.Screen
+import com.example.pilloramoney.notifications.NotificationScheduler
+import com.example.pilloramoney.notifications.PilloraNotificationManager
 import com.example.pilloramoney.ui.components.PilloraBottomBar
 import com.example.pilloramoney.ui.components.PilloraDrawer
 import com.example.pilloramoney.ui.screens.*
 import com.example.pilloramoney.ui.theme.PilloraMoneyTheme
+import com.example.pilloramoney.ui.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            scheduleNotifications()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        PilloraNotificationManager.createNotificationChannel(this)
+        checkNotificationPermission()
+        handleDeepLink(intent)
+
         setContent {
             val context = LocalContext.current
             val sharedPrefs = remember { context.getSharedPreferences("prefs", Context.MODE_PRIVATE) }
             var themePref by remember { mutableStateOf(sharedPrefs.getString("theme", "System") ?: "System") }
+            var initialDestination by remember { mutableStateOf<String?>(intent.getStringExtra("destination")) }
             
+            val authViewModel: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            val user by authViewModel.currentUser.collectAsState()
+
             val darkTheme = when (themePref) {
                 "Light" -> false
                 "Dark" -> true
@@ -47,15 +74,69 @@ class MainActivity : ComponentActivity() {
                     onThemeChange = { newTheme ->
                         themePref = newTheme
                         sharedPrefs.edit().putString("theme", newTheme).apply()
-                    }
+                    },
+                    initialDestination = initialDestination,
+                    onDestinationHandled = { initialDestination = null },
+                    isUserLoggedIn = user != null,
+                    authViewModel = authViewModel
                 )
             }
         }
     }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(intent: android.content.Intent) {
+        val data = intent.data
+        if (data != null) {
+            when (data.host) {
+                "spreadsheet" -> {
+                    // Navegar para a tela de projeção
+                    intent.putExtra("destination", "spreadsheet")
+                }
+                "savings" -> {
+                    // Navegar para a tela de economia
+                    intent.putExtra("destination", "savings")
+                }
+            }
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    scheduleNotifications()
+                }
+                else -> {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            scheduleNotifications()
+        }
+    }
+
+    private fun scheduleNotifications() {
+        NotificationScheduler.scheduleDailyNotifications(this)
+    }
 }
 
 @Composable
-fun PilloraApp(currentTheme: String, onThemeChange: (String) -> Unit) {
+fun PilloraApp(
+    currentTheme: String, 
+    onThemeChange: (String) -> Unit,
+    initialDestination: String? = null,
+    onDestinationHandled: () -> Unit = {},
+    isUserLoggedIn: Boolean,
+    authViewModel: AuthViewModel
+) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -63,42 +144,97 @@ fun PilloraApp(currentTheme: String, onThemeChange: (String) -> Unit) {
     val currentDestination = navBackStackEntry?.destination?.route
     val currentRoute = currentDestination?.substringAfterLast(".")
 
+    // Proteção de Rotas: Redirecionar para Login se não estiver logado
+    LaunchedEffect(isUserLoggedIn) {
+        if (!isUserLoggedIn) {
+            navController.navigate(Screen.Login) {
+                popUpTo(0) { inclusive = true }
+            }
+        } else if (currentDestination?.contains("Login") == true || currentDestination?.contains("Register") == true) {
+            navController.navigate(Screen.Home) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    LaunchedEffect(initialDestination) {
+        if (initialDestination != null && isUserLoggedIn) {
+            when (initialDestination) {
+                "spreadsheet" -> {
+                    navController.navigate(Screen.Spreadsheet) {
+                        popUpTo(navController.graph.startDestinationId)
+                        launchSingleTop = true
+                    }
+                }
+                "savings" -> {
+                    navController.navigate(Screen.SavingsDetail) {
+                        popUpTo(navController.graph.startDestinationId)
+                        launchSingleTop = true
+                    }
+                }
+            }
+            onDestinationHandled()
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = isUserLoggedIn,
         drawerContent = {
             PilloraDrawer(
+                userEmail = authViewModel.currentUser.collectAsState().value?.email ?: "",
                 onNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(navController.graph.startDestinationId)
                         launchSingleTop = true
                     }
                 },
-                closeDrawer = { scope.launch { drawerState.close() } }
+                closeDrawer = { scope.launch { drawerState.close() } },
+                onLogout = {
+                    authViewModel.signOut()
+                    scope.launch { drawerState.close() }
+                }
             )
         }
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
-                PilloraBottomBar(
-                    currentRoute = currentRoute,
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.startDestinationId)
-                            launchSingleTop = true
+                if (isUserLoggedIn) {
+                    PilloraBottomBar(
+                        currentRoute = currentRoute,
+                        onNavigate = { route ->
+                            navController.navigate(route) {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
+                        },
+                        onFabClick = {
+                            navController.navigate(Screen.AddTransaction)
                         }
-                    },
-                    onFabClick = {
-                        navController.navigate(Screen.AddTransaction)
-                    }
-                )
+                    )
+                }
             }
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
                 NavHost(
                     navController = navController,
-                    startDestination = Screen.Home
+                    startDestination = if (isUserLoggedIn) Screen.Home else Screen.Login
                 ) {
+                    composable<Screen.Login> {
+                        LoginScreen(
+                            viewModel = authViewModel,
+                            onNavigateToRegister = { navController.navigate(Screen.Register) },
+                            onLoginSuccess = { navController.navigate(Screen.Home) { popUpTo(Screen.Login) { inclusive = true } } }
+                        )
+                    }
+                    composable<Screen.Register> {
+                        RegisterScreen(
+                            viewModel = authViewModel,
+                            onNavigateToLogin = { navController.popBackStack() },
+                            onRegisterSuccess = { navController.navigate(Screen.Home) { popUpTo(Screen.Register) { inclusive = true } } }
+                        )
+                    }
                     composable<Screen.Home> {
                         HomeScreen(
                             onOpenDrawer = { scope.launch { drawerState.open() } },
@@ -124,7 +260,8 @@ fun PilloraApp(currentTheme: String, onThemeChange: (String) -> Unit) {
                         SettingsScreen(
                             currentTheme = currentTheme,
                             onThemeChange = onThemeChange,
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
+                            onLogout = { authViewModel.signOut() }
                         )
                     }
                 }

@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GoalDao {
-    @Query("SELECT * FROM financial_goals WHERE id = 'SAVINGS_GOAL'")
-    fun getSavingsGoal(): Flow<FinancialGoal?>
+    @Query("SELECT * FROM financial_goals WHERE userId = :userId")
+    fun getSavingsGoal(userId: String): Flow<FinancialGoal?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertGoal(goal: FinancialGoal)

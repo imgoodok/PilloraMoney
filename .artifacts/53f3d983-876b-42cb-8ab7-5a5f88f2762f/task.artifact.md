@@ -1,0 +1,4 @@
+- `[x]` Alterar política de agendamento para `KEEP` em `NotificationScheduler.kt`
+- `[x]` Garantir limpeza de milissegundos no cálculo de tempo
+- `[x]` Adicionar logs de diagnóstico em `NotificationWorker.kt`
+- `[x]` Validar logs de agendamento no Logcat

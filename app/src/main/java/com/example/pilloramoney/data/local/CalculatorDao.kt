@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CalculatorDao {
-    @Query("SELECT * FROM calculator_items")
-    fun getAllItems(): Flow<List<CalculatorItem>>
+    @Query("SELECT * FROM calculator_items WHERE userId = :userId")
+    fun getAllItems(userId: String): Flow<List<CalculatorItem>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItem(item: CalculatorItem)

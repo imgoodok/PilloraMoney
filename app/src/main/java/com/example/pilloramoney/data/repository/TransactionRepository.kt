@@ -9,8 +9,12 @@ import javax.inject.Singleton
 
 @Singleton
 class TransactionRepository @Inject constructor(
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val authRepository: AuthRepository
 ) {
+    private val currentUserId: String
+        get() = authRepository.currentUser?.uid ?: "ANONYMOUS"
+
     suspend fun saveTransactionWithRepetition(
         description: String,
         value: Double,
@@ -19,6 +23,7 @@ class TransactionRepository @Inject constructor(
         repetition: String,
         numRepetitions: Int = 1
     ) {
+        val userId = currentUserId
         val transactionsToSave = mutableListOf<Transaction>()
         val calendar = Calendar.getInstance().apply { timeInMillis = date }
         
@@ -43,6 +48,7 @@ class TransactionRepository @Inject constructor(
             val txDate = calendar.timeInMillis
             transactionsToSave.add(
                 Transaction(
+                    userId = userId,
                     description = description,
                     value = value,
                     date = txDate,
@@ -64,11 +70,12 @@ class TransactionRepository @Inject constructor(
     }
 
     suspend fun applyCalculatorValueToProjection(value: Double) {
+        val userId = currentUserId
         val desc = "Gasto Diário (Calculadora)"
         val type = TransactionType.DIARIO
         
         // 1. Clear previous ones
-        transactionDao.deleteTransactionsByDescriptionAndType(desc, type)
+        transactionDao.deleteTransactionsByDescriptionAndType(userId, desc, type)
         
         // 2. Generate new ones for 10 years, starting from the 1st of the current month
         if (value > 0) {
@@ -91,6 +98,6 @@ class TransactionRepository @Inject constructor(
     }
 
     suspend fun clearCalculatorProjection() {
-        transactionDao.deleteTransactionsByDescriptionAndType("Gasto Diário (Calculadora)", TransactionType.DIARIO)
+        transactionDao.deleteTransactionsByDescriptionAndType(currentUserId, "Gasto Diário (Calculadora)", TransactionType.DIARIO)
     }
 }

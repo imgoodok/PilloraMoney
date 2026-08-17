@@ -5,6 +5,6 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "financial_goals")
 data class FinancialGoal(
-    @PrimaryKey val id: String = "SAVINGS_GOAL", // We only need one for now
+    @PrimaryKey val userId: String, // One goal per user
     val targetValue: Double = 0.0
 )

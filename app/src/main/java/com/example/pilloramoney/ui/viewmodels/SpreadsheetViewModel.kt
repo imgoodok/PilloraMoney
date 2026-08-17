@@ -7,6 +7,7 @@ import com.example.pilloramoney.data.local.TransactionDao
 import com.example.pilloramoney.data.model.MonthlyBalance
 import com.example.pilloramoney.data.model.Transaction
 import com.example.pilloramoney.data.model.TransactionType
+import com.example.pilloramoney.data.repository.AuthRepository
 import com.example.pilloramoney.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -26,8 +27,12 @@ data class SpreadsheetUiState(
 class SpreadsheetViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
     private val monthlyBalanceDao: MonthlyBalanceDao,
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
+
+    private val currentUserId: String
+        get() = authRepository.currentUser?.uid ?: "ANONYMOUS"
 
     private val _uiState = MutableStateFlow(SpreadsheetUiState())
     val uiState: StateFlow<SpreadsheetUiState> = _uiState.asStateFlow()
@@ -53,6 +58,7 @@ class SpreadsheetViewModel @Inject constructor(
     }
 
     private fun loadData() {
+        val userId = currentUserId
         val calendar = _uiState.value.currentMonth
         val monthKey = monthFormatter.format(calendar.time)
 
@@ -72,20 +78,21 @@ class SpreadsheetViewModel @Inject constructor(
 
         viewModelScope.launch {
             // Load Initial Balance
-            val balance = monthlyBalanceDao.getBalanceForMonth(monthKey)?.initialBalance ?: 0.0
+            val balance = monthlyBalanceDao.getBalanceForMonth(userId, monthKey)?.initialBalance ?: 0.0
             _uiState.update { it.copy(initialBalance = balance) }
 
             // Load Transactions
-            transactionDao.getTransactionsInRange(start, end).collect { list ->
+            transactionDao.getTransactionsInRange(userId, start, end).collect { list ->
                 _uiState.update { it.copy(transactions = list) }
             }
         }
     }
 
     fun updateInitialBalance(value: Double) {
+        val userId = currentUserId
         val monthKey = monthFormatter.format(_uiState.value.currentMonth.time)
         viewModelScope.launch {
-            monthlyBalanceDao.upsertBalance(MonthlyBalance(monthKey, value))
+            monthlyBalanceDao.upsertBalance(MonthlyBalance(userId, monthKey, value))
             _uiState.update { it.copy(initialBalance = value) }
         }
     }

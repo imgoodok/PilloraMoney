@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.pilloramoney" />
+                  <option name="mobileSdkAppId" value="1:8192091999:android:126ed3909f5fc5d4f438ea" />
+                  <option name="projectId" value="pillora-money" />
+                  <option name="projectNumber" value="8192091999" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
