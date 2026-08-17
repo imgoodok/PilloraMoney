@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
     primaryKeys = ["userId", "monthKey"]
 )
 data class MonthlyBalance(
-    val userId: String,
-    val monthKey: String, // Format: "yyyy-MM"
+    val userId: String = "",
+    val monthKey: String = "", // Format: "yyyy-MM"
     val initialBalance: Double = 0.0
 )

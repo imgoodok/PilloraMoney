@@ -1,8 +1,12 @@
 package com.example.pilloramoney.data.repository
 
 import com.example.pilloramoney.data.local.TransactionDao
+import com.example.pilloramoney.data.model.SubscriptionStatus
 import com.example.pilloramoney.data.model.Transaction
 import com.example.pilloramoney.data.model.TransactionType
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.tasks.await
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -10,7 +14,9 @@ import javax.inject.Singleton
 @Singleton
 class TransactionRepository @Inject constructor(
     private val transactionDao: TransactionDao,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val subscriptionRepository: SubscriptionRepository,
+    private val firestore: FirebaseFirestore
 ) {
     private val currentUserId: String
         get() = authRepository.currentUser?.uid ?: "ANONYMOUS"
@@ -67,6 +73,39 @@ class TransactionRepository @Inject constructor(
         }
 
         transactionDao.insertTransactions(transactionsToSave)
+        
+        // Sync to Firestore if Premium
+        val subscription = subscriptionRepository.getSubscriptionStatus().first()
+        if (subscription.status == SubscriptionStatus.PREMIUM) {
+            syncTransactionsToFirestore(transactionsToSave)
+        }
+    }
+
+    suspend fun deleteTransaction(transaction: Transaction) {
+        transactionDao.deleteTransaction(transaction)
+        
+        val subscription = subscriptionRepository.getSubscriptionStatus().first()
+        if (subscription.status == SubscriptionStatus.PREMIUM) {
+            val userId = currentUserId
+            if (userId != "ANONYMOUS") {
+                firestore.collection("users").document(userId)
+                    .collection("transactions").document(transaction.syncId)
+                    .delete().await()
+            }
+        }
+    }
+
+    private suspend fun syncTransactionsToFirestore(transactions: List<Transaction>) {
+        val userId = currentUserId
+        if (userId == "ANONYMOUS") return
+        
+        val batch = firestore.batch()
+        transactions.forEach { tx ->
+            val docRef = firestore.collection("users").document(userId)
+                .collection("transactions").document(tx.syncId)
+            batch.set(docRef, tx)
+        }
+        batch.commit().await()
     }
 
     suspend fun applyCalculatorValueToProjection(value: Double) {
@@ -74,10 +113,26 @@ class TransactionRepository @Inject constructor(
         val desc = "Gasto Diário (Calculadora)"
         val type = TransactionType.DIARIO
         
-        // 1. Clear previous ones
+        // 1. Clear previous ones locally
         transactionDao.deleteTransactionsByDescriptionAndType(userId, desc, type)
         
-        // 2. Generate new ones for 10 years, starting from the 1st of the current month
+        // 2. Clear previous ones in Firestore if Premium
+        val subscription = subscriptionRepository.getSubscriptionStatus().first()
+        if (subscription.status == SubscriptionStatus.PREMIUM && userId != "ANONYMOUS") {
+            val snapshots = firestore.collection("users").document(userId)
+                .collection("transactions")
+                .whereEqualTo("description", desc)
+                .whereEqualTo("type", type.name)
+                .get().await()
+            
+            val batch = firestore.batch()
+            for (doc in snapshots.documents) {
+                batch.delete(doc.reference)
+            }
+            batch.commit().await()
+        }
+        
+        // 3. Generate new ones
         if (value > 0) {
             val startCalendar = Calendar.getInstance()
             startCalendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -98,6 +153,25 @@ class TransactionRepository @Inject constructor(
     }
 
     suspend fun clearCalculatorProjection() {
-        transactionDao.deleteTransactionsByDescriptionAndType(currentUserId, "Gasto Diário (Calculadora)", TransactionType.DIARIO)
+        val userId = currentUserId
+        val desc = "Gasto Diário (Calculadora)"
+        val type = TransactionType.DIARIO
+        
+        transactionDao.deleteTransactionsByDescriptionAndType(userId, desc, type)
+        
+        val subscription = subscriptionRepository.getSubscriptionStatus().first()
+        if (subscription.status == SubscriptionStatus.PREMIUM && userId != "ANONYMOUS") {
+            val snapshots = firestore.collection("users").document(userId)
+                .collection("transactions")
+                .whereEqualTo("description", desc)
+                .whereEqualTo("type", type.name)
+                .get().await()
+            
+            val batch = firestore.batch()
+            for (doc in snapshots.documents) {
+                batch.delete(doc.reference)
+            }
+            batch.commit().await()
+        }
     }
 }

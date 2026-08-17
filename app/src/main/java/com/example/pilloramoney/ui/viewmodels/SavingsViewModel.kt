@@ -8,6 +8,8 @@ import com.example.pilloramoney.data.model.FinancialGoal
 import com.example.pilloramoney.data.model.Transaction
 import com.example.pilloramoney.data.model.TransactionType
 import com.example.pilloramoney.data.repository.AuthRepository
+import com.example.pilloramoney.data.repository.GoalRepository
+import com.example.pilloramoney.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -24,6 +26,8 @@ data class SavingsUiState(
 class SavingsViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
     private val goalDao: GoalDao,
+    private val goalRepository: GoalRepository,
+    private val transactionRepository: TransactionRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -60,13 +64,13 @@ class SavingsViewModel @Inject constructor(
     fun updateGoal(value: Double) {
         val userId = currentUserId
         viewModelScope.launch {
-            goalDao.upsertGoal(FinancialGoal(userId = userId, targetValue = value))
+            goalRepository.upsertGoal(FinancialGoal(userId = userId, targetValue = value))
         }
     }
 
     fun deleteSaving(transaction: Transaction) {
         viewModelScope.launch {
-            transactionDao.deleteTransaction(transaction)
+            transactionRepository.deleteTransaction(transaction)
         }
     }
 }

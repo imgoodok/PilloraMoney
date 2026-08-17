@@ -8,6 +8,7 @@ import com.example.pilloramoney.data.model.MonthlyBalance
 import com.example.pilloramoney.data.model.Transaction
 import com.example.pilloramoney.data.model.TransactionType
 import com.example.pilloramoney.data.repository.AuthRepository
+import com.example.pilloramoney.data.repository.MonthlyBalanceRepository
 import com.example.pilloramoney.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -28,6 +29,7 @@ class SpreadsheetViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
     private val monthlyBalanceDao: MonthlyBalanceDao,
     private val transactionRepository: TransactionRepository,
+    private val monthlyBalanceRepository: MonthlyBalanceRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -92,7 +94,7 @@ class SpreadsheetViewModel @Inject constructor(
         val userId = currentUserId
         val monthKey = monthFormatter.format(_uiState.value.currentMonth.time)
         viewModelScope.launch {
-            monthlyBalanceDao.upsertBalance(MonthlyBalance(userId, monthKey, value))
+            monthlyBalanceRepository.upsertBalance(MonthlyBalance(userId, monthKey, value))
             _uiState.update { it.copy(initialBalance = value) }
         }
     }
@@ -122,7 +124,7 @@ class SpreadsheetViewModel @Inject constructor(
 
     fun deleteTransaction(transaction: Transaction) {
         viewModelScope.launch {
-            transactionDao.deleteTransaction(transaction)
+            transactionRepository.deleteTransaction(transaction)
         }
     }
 }

@@ -99,6 +99,10 @@ fun PilloraDrawer(
         
         Spacer(modifier = Modifier.height(8.dp))
         DrawerSectionHeader("SISTEMA")
+        DrawerItem(Icons.Default.Star, "Assinatura") {
+            onNavigate(Screen.Subscription)
+            closeDrawer()
+        }
         DrawerItem(Icons.Default.Settings, "Configurações") {
             onNavigate(Screen.Settings)
             closeDrawer()

@@ -31,6 +31,7 @@ import com.example.pilloramoney.ui.components.PilloraDrawer
 import com.example.pilloramoney.ui.screens.*
 import com.example.pilloramoney.ui.theme.PilloraMoneyTheme
 import com.example.pilloramoney.ui.viewmodels.AuthViewModel
+import com.example.pilloramoney.ui.viewmodels.SubscriptionViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -59,7 +60,7 @@ class MainActivity : ComponentActivity() {
             var themePref by remember { mutableStateOf(sharedPrefs.getString("theme", "System") ?: "System") }
             var initialDestination by remember { mutableStateOf<String?>(intent.getStringExtra("destination")) }
             
-            val authViewModel: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            val authViewModel: AuthViewModel = androidx.hilt.navigation.compose.hiltViewModel()
             val user by authViewModel.currentUser.collectAsState()
 
             val darkTheme = when (themePref) {
@@ -144,6 +145,10 @@ fun PilloraApp(
     val currentDestination = navBackStackEntry?.destination?.route
     val currentRoute = currentDestination?.substringAfterLast(".")
 
+    val subscriptionViewModel: SubscriptionViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    val user by authViewModel.currentUser.collectAsState()
+    val subscription by subscriptionViewModel.subscriptionStatus.collectAsState()
+
     // Proteção de Rotas: Redirecionar para Login se não estiver logado
     LaunchedEffect(isUserLoggedIn) {
         if (!isUserLoggedIn) {
@@ -153,6 +158,16 @@ fun PilloraApp(
         } else if (currentDestination?.contains("Login") == true || currentDestination?.contains("Register") == true) {
             navController.navigate(Screen.Home) {
                 popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    // Downgrade Check
+    LaunchedEffect(subscription, currentRoute) {
+        if (subscription.status == com.example.pilloramoney.data.model.SubscriptionStatus.EXPIRED && 
+            isUserLoggedIn && currentRoute != "Downgrade") {
+            navController.navigate(Screen.Downgrade) {
+                launchSingleTop = true
             }
         }
     }
@@ -262,6 +277,22 @@ fun PilloraApp(
                             onThemeChange = onThemeChange,
                             onBack = { navController.popBackStack() },
                             onLogout = { authViewModel.signOut() }
+                        )
+                    }
+                    composable<Screen.Subscription> {
+                        SubscriptionScreen(
+                            viewModel = subscriptionViewModel,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable<Screen.Downgrade> {
+                        DowngradeScreen(
+                            viewModel = subscriptionViewModel,
+                            onNavigateToSubscription = { navController.navigate(Screen.Subscription) },
+                            onContinueFree = { 
+                                subscriptionViewModel.updateSubscription(com.example.pilloramoney.data.model.SubscriptionStatus.FREE)
+                                navController.navigate(Screen.Home) { popUpTo(Screen.Home) { inclusive = true } }
+                            }
                         )
                     }
                 }

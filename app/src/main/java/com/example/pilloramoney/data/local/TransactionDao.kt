@@ -42,4 +42,7 @@ interface TransactionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransactions(transactions: List<Transaction>)
+
+    @Query("SELECT * FROM transactions WHERE userId = :userId")
+    suspend fun getAllTransactionsForSync(userId: String): List<Transaction>
 }

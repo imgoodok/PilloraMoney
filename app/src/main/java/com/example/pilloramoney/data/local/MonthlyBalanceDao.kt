@@ -14,4 +14,7 @@ interface MonthlyBalanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertBalance(balance: MonthlyBalance)
+
+    @Query("SELECT * FROM monthly_balances WHERE userId = :userId")
+    suspend fun getAllBalancesForSync(userId: String): List<MonthlyBalance>
 }

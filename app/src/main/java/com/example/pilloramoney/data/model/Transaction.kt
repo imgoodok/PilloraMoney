@@ -3,6 +3,8 @@ package com.example.pilloramoney.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+import java.util.UUID
+
 enum class TransactionType {
     ENTRADA, SAIDA, ECONOMIA, CARTAO, DIARIO
 }
@@ -10,13 +12,14 @@ enum class TransactionType {
 @Entity(tableName = "transactions")
 data class Transaction(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val userId: String, // Link to Firebase User UID
-    val date: Long, // Epoch timestamp for the specific day
-    val type: TransactionType,
-    val value: Double,
+    val userId: String = "",
+    val syncId: String = UUID.randomUUID().toString(),
+    val date: Long = 0,
+    val type: TransactionType = TransactionType.SAIDA,
+    val value: Double = 0.0,
     val description: String = "",
     val category: String = "Geral",
     val isRecurring: Boolean = false,
-    val recurrenceId: String? = null, // To link generated recurring items
+    val recurrenceId: String? = null,
     val dayOfMonth: Int? = null 
 )

@@ -14,4 +14,7 @@ interface CalculatorDao {
 
     @Delete
     suspend fun deleteItem(item: CalculatorItem)
+
+    @Query("SELECT * FROM calculator_items WHERE userId = :userId")
+    suspend fun getAllItemsForSync(userId: String): List<CalculatorItem>
 }

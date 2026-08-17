@@ -33,4 +33,10 @@ sealed class Screen {
     
     @Serializable
     data object Settings : Screen()
+
+    @Serializable
+    data object Subscription : Screen()
+
+    @Serializable
+    data object Downgrade : Screen()
 }

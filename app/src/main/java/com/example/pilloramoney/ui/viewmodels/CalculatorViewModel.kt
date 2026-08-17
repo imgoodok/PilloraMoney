@@ -6,6 +6,7 @@ import com.example.pilloramoney.data.local.CalculatorDao
 import com.example.pilloramoney.data.model.CalculatorItem
 import com.example.pilloramoney.data.model.Frequency
 import com.example.pilloramoney.data.repository.AuthRepository
+import com.example.pilloramoney.data.repository.CalculatorRepository
 import com.example.pilloramoney.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -22,6 +23,7 @@ data class CalculatorUiState(
 class CalculatorViewModel @Inject constructor(
     private val calculatorDao: CalculatorDao,
     private val transactionRepository: TransactionRepository,
+    private val calculatorRepository: CalculatorRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -50,13 +52,13 @@ class CalculatorViewModel @Inject constructor(
     fun addItem(name: String, value: Double, frequency: Frequency) {
         val userId = currentUserId
         viewModelScope.launch {
-            calculatorDao.insertItem(CalculatorItem(userId = userId, name = name, value = value, frequency = frequency))
+            calculatorRepository.insertItem(CalculatorItem(userId = userId, name = name, value = value, frequency = frequency))
         }
     }
 
     fun deleteItem(item: CalculatorItem) {
         viewModelScope.launch {
-            calculatorDao.deleteItem(item)
+            calculatorRepository.deleteItem(item)
         }
     }
 
