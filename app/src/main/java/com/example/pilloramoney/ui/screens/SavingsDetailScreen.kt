@@ -15,7 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.pilloramoney.R
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,10 +40,10 @@ fun SavingsDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Minhas Economias") },
+                title = { Text(stringResource(R.string.savings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -65,7 +67,7 @@ fun SavingsDetailScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
             ) {
                 Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("VALOR ACUMULADO", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.savings_accumulated_value), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     Text(
                         text = String.format(Locale.getDefault(), "R$ %.2f", uiState.totalSaved),
                         style = MaterialTheme.typography.displaySmall,
@@ -75,8 +77,8 @@ fun SavingsDetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Meta: R$ ${String.format(Locale.getDefault(), "%.2f", uiState.currentGoal)}", style = MaterialTheme.typography.bodyMedium)
-                        Text("${(uiState.progressPercentage * 100).toInt()}% concluído", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.savings_goal_format, String.format(Locale.getDefault(), "%.2f", uiState.currentGoal)), style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.savings_progress_format, (uiState.progressPercentage * 100).toInt()), fontWeight = FontWeight.Bold)
                     }
                     
                     Spacer(modifier = Modifier.height(8.dp))
@@ -90,13 +92,13 @@ fun SavingsDetailScreen(
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = { showGoalDialog = true }) {
-                        Text("Definir Meta de Economia")
+                        Text(stringResource(R.string.savings_set_goal))
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            Text("Histórico de Aportes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.savings_history_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -107,7 +109,7 @@ fun SavingsDetailScreen(
                 if (uiState.savingsHistory.isEmpty()) {
                     item {
                         Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                            Text("Nenhum aporte registrado", color = TextSecondary)
+                            Text(stringResource(R.string.savings_no_history), color = TextSecondary)
                         }
                     }
                 }
@@ -139,7 +141,7 @@ fun SavingHistoryItem(transaction: Transaction, onDelete: (Transaction) -> Unit)
             Icon(Icons.Default.Savings, contentDescription = null, tint = SuccessGreen)
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(transaction.description.ifEmpty { "Economia" }, fontWeight = FontWeight.Bold)
+                Text(transaction.description.ifEmpty { stringResource(R.string.savings_default_desc) }, fontWeight = FontWeight.Bold)
                 Text(dateStr, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
             }
             Text(
@@ -159,20 +161,20 @@ fun GoalInputDialog(currentGoal: Double, onDismiss: () -> Unit, onConfirm: (Doub
     var value by remember { mutableStateOf(currentGoal.toString()) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Meta de Economia") },
+        title = { Text(stringResource(R.string.savings_goal_dialog_title)) },
         text = {
             OutlinedTextField(
                 value = value,
                 onValueChange = { value = it },
-                label = { Text("Valor Total Objetivo") },
+                label = { Text(stringResource(R.string.savings_goal_input_label)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
         },
         confirmButton = {
-            Button(onClick = { onConfirm(value.toDoubleOrNull() ?: 0.0) }) { Text("Salvar") }
+            Button(onClick = { onConfirm(value.toDoubleOrNull() ?: 0.0) }) { Text(stringResource(R.string.save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }

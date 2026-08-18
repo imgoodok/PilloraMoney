@@ -13,7 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.pilloramoney.R
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,13 +41,14 @@ fun SpreadsheetScreen(
     var selectedType by remember { mutableStateOf(TransactionType.SAIDA) }
 
     val calendar = uiState.currentMonth
-    val monthName = SimpleDateFormat("MMMM yyyy", Locale("pt", "BR"))
+    val locale = Locale.getDefault()
+    val monthName = SimpleDateFormat("MMMM yyyy", locale)
         .format(calendar.time)
-        .replaceFirstChar { it.uppercase() }
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 
     val horizontalScrollState = rememberScrollState()
     // Localized currency formatter without the "R$" symbol for table density
-    val currencyFormat = remember { NumberFormat.getNumberInstance(Locale("pt", "BR")).apply { 
+    val currencyFormat = remember(locale) { NumberFormat.getNumberInstance(locale).apply { 
         minimumFractionDigits = 2 
         maximumFractionDigits = 2
     } }
@@ -160,7 +163,7 @@ fun CompactSpreadsheetHeader(scrollState: ScrollState) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            "DIA",
+            stringResource(R.string.spreadsheet_day),
             modifier = Modifier.width(40.dp).padding(start = 8.dp),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
@@ -178,11 +181,11 @@ fun CompactSpreadsheetHeader(scrollState: ScrollState) {
                 .weight(1f)
                 .horizontalScroll(scrollState)
         ) {
-            HeaderCell("ENTRADA")
-            HeaderCell("SAÍDA")
-            HeaderCell("DIÁRIO")
-            HeaderCell("ECONOMIA")
-            HeaderCell("CARTÃO") // RE-ADDED
+            HeaderCell(stringResource(R.string.spreadsheet_in))
+            HeaderCell(stringResource(R.string.spreadsheet_out))
+            HeaderCell(stringResource(R.string.spreadsheet_daily))
+            HeaderCell(stringResource(R.string.spreadsheet_savings))
+            HeaderCell(stringResource(R.string.spreadsheet_card))
         }
 
         VerticalDivider(
@@ -192,7 +195,7 @@ fun CompactSpreadsheetHeader(scrollState: ScrollState) {
         )
         
         Text(
-            "SALDO",
+            stringResource(R.string.spreadsheet_balance),
             modifier = Modifier.width(100.dp).padding(end = 8.dp),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
@@ -322,7 +325,7 @@ fun DataCell(
                 )
                 if (items.size > 1) {
                     Text(
-                        text = "${items.size} itens",
+                        text = "${items.size} ${stringResource(R.string.items)}",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 8.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -344,26 +347,27 @@ fun DayDetailsDialog(
 ) {
     var value by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var repetition by remember { mutableStateOf("Apenas uma vez") }
+    var repetition by remember { mutableStateOf("") }
     var numRepetitions by remember { mutableStateOf("1") }
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("pt", "BR")) }
+    val locale = Locale.getDefault()
+    val currencyFormat = remember(locale) { NumberFormat.getCurrencyInstance(locale) }
 
     val typeName = when(type) {
-        TransactionType.ENTRADA -> "Entrada"
-        TransactionType.SAIDA -> "Saída"
-        TransactionType.DIARIO -> "Gasto Diário"
-        TransactionType.ECONOMIA -> "Economia"
-        TransactionType.CARTAO -> "Cartão"
-        else -> "Lançamento"
+        TransactionType.ENTRADA -> stringResource(R.string.tx_type_in)
+        TransactionType.SAIDA -> stringResource(R.string.tx_type_out)
+        TransactionType.DIARIO -> stringResource(R.string.tx_type_daily)
+        TransactionType.ECONOMIA -> stringResource(R.string.tx_type_savings)
+        TransactionType.CARTAO -> stringResource(R.string.tx_type_card)
+        else -> stringResource(R.string.tx_type_generic)
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Detalhes de $typeName - Dia $day", style = MaterialTheme.typography.titleMedium) },
+        title = { Text(stringResource(R.string.spreadsheet_details_title, typeName, day), style = MaterialTheme.typography.titleMedium) },
         text = {
             Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
                 if (existingItems.isNotEmpty()) {
-                    Text("Lançamentos Existentes:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.spreadsheet_existing_items), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                     existingItems.forEach { item ->
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
@@ -371,7 +375,7 @@ fun DayDetailsDialog(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(item.description.ifEmpty { "Sem descrição" }, style = MaterialTheme.typography.bodySmall)
+                                Text(item.description.ifEmpty { stringResource(R.string.spreadsheet_no_description) }, style = MaterialTheme.typography.bodySmall)
                                 Text(currencyFormat.format(item.value), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                             }
                             IconButton(onClick = { onDelete(item) }, modifier = Modifier.size(32.dp)) {
@@ -382,7 +386,7 @@ fun DayDetailsDialog(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 }
 
-                Text("Adicionar Novo:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.spreadsheet_add_new), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = value,
@@ -391,7 +395,7 @@ fun DayDetailsDialog(
                             value = input.replace(",", ".")
                         }
                     },
-                    label = { Text("Valor", style = MaterialTheme.typography.bodySmall) },
+                    label = { Text(stringResource(R.string.spreadsheet_value), style = MaterialTheme.typography.bodySmall) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = MaterialTheme.typography.bodyMedium
@@ -400,12 +404,12 @@ fun DayDetailsDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descrição", style = MaterialTheme.typography.bodySmall) },
+                    label = { Text(stringResource(R.string.spreadsheet_description), style = MaterialTheme.typography.bodySmall) },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Repetição", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.spreadsheet_repetition), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 RepetitionDropdown(repetition) { repetition = it }
                 
                 if (repetition.contains("N meses") || repetition.contains("N dias")) {
@@ -413,7 +417,7 @@ fun DayDetailsDialog(
                     OutlinedTextField(
                         value = numRepetitions,
                         onValueChange = { numRepetitions = it },
-                        label = { Text(if (repetition.contains("meses")) "Meses" else "Dias", style = MaterialTheme.typography.bodySmall) },
+                        label = { Text(if (repetition.contains("meses")) stringResource(R.string.spreadsheet_months) else stringResource(R.string.spreadsheet_days), style = MaterialTheme.typography.bodySmall) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = MaterialTheme.typography.bodyMedium
@@ -427,11 +431,11 @@ fun DayDetailsDialog(
                 val n = numRepetitions.toIntOrNull() ?: 1
                 onAdd(v, description, repetition, n)
             }) {
-                Text("Salvar", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.save), style = MaterialTheme.typography.labelLarge)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Fechar", style = MaterialTheme.typography.labelLarge) }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.close), style = MaterialTheme.typography.labelLarge) }
         }
     )
 }

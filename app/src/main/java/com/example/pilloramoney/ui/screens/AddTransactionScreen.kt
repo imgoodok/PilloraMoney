@@ -16,7 +16,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.pilloramoney.R
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,7 +55,7 @@ fun AddTransactionScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Adicionar Lançamento",
+                text = stringResource(R.string.add_tx_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -95,7 +97,7 @@ fun AddTransactionScreen(
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Descrição (ex: Supermercado)") },
+                label = { Text(stringResource(R.string.add_tx_description_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -105,7 +107,7 @@ fun AddTransactionScreen(
             OutlinedTextField(
                 value = value,
                 onValueChange = { value = it },
-                label = { Text("Valor (R$)") },
+                label = { Text(stringResource(R.string.add_tx_value_label)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
@@ -116,14 +118,14 @@ fun AddTransactionScreen(
             OutlinedTextField(
                 value = dateStr,
                 onValueChange = { dateStr = it },
-                label = { Text("Data (DD/MM/AAAA)") },
+                label = { Text(stringResource(R.string.add_tx_date_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text("Repetição", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(R.string.add_tx_repetition), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             RepetitionDropdown(repetition) { repetition = it }
 
             if (repetition.contains("N meses") || repetition.contains("N dias")) {
@@ -131,7 +133,7 @@ fun AddTransactionScreen(
                 OutlinedTextField(
                     value = numRepetitions,
                     onValueChange = { numRepetitions = it },
-                    label = { Text(if (repetition.contains("meses")) "Quantidade de meses" else "Quantidade de dias") },
+                    label = { Text(if (repetition.contains("meses")) stringResource(R.string.add_tx_num_months) else stringResource(R.string.add_tx_num_days)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
@@ -155,7 +157,7 @@ fun AddTransactionScreen(
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("SALVAR LANÇAMENTO", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.add_tx_save_button), fontWeight = FontWeight.Bold)
             }
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -166,9 +168,9 @@ fun AddTransactionScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val typeLabel = uiState.selectedType.name.lowercase().capitalize() + "s"
-                Text("Lançamentos ($typeLabel)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.add_tx_recent_title, typeLabel), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 TextButton(onClick = { showResetDialog = true }) {
-                    Text("Resetar", color = ErrorRed)
+                    Text(stringResource(R.string.reset), color = ErrorRed)
                 }
             }
             
@@ -179,23 +181,24 @@ fun AddTransactionScreen(
             
             if (uiState.lastTransactions.isEmpty()) {
                 Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                    Text("Nenhum registro recente", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.add_tx_no_records), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
     }
 
     if (showResetDialog) {
+        val typeLabel = uiState.selectedType.name.lowercase().capitalize() + "s"
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
-            title = { Text("Confirmação de Reset") },
-            text = { Text("Deseja apagar os lançamentos? Escolha se quer resetar apenas esta categoria ou tudo.") },
+            title = { Text(stringResource(R.string.add_tx_reset_confirm_title)) },
+            text = { Text(stringResource(R.string.add_tx_reset_confirm_msg)) },
             confirmButton = {
                 Button(onClick = { 
                     viewModel.deleteAll()
                     showResetDialog = false
                 }, colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)) {
-                    Text("Geral (TUDO)")
+                    Text(stringResource(R.string.add_tx_reset_all))
                 }
             },
             dismissButton = {
@@ -203,8 +206,7 @@ fun AddTransactionScreen(
                     viewModel.deleteCurrentType()
                     showResetDialog = false
                 }) {
-                    val typeLabel = uiState.selectedType.name.lowercase().capitalize() + "s"
-                    Text("Apenas $typeLabel")
+                    Text(stringResource(R.string.add_tx_reset_only_this, typeLabel))
                 }
             }
         )

@@ -19,7 +19,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.pilloramoney.R
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,6 +41,8 @@ fun CalculatorScreen(
     viewModel: CalculatorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val appliedMsg = stringResource(R.string.calc_applied_msg)
+    val clearedMsg = stringResource(R.string.calc_cleared_msg)
     var showAddDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -45,7 +50,7 @@ fun CalculatorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Calculadora Diária") },
+                title = { Text(stringResource(R.string.calc_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -64,7 +69,7 @@ fun CalculatorScreen(
             // Summary Statistics (Full Width)
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
-                    text = "Consolide seus gastos recorrentes",
+                    text = stringResource(R.string.calc_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -79,7 +84,7 @@ fun CalculatorScreen(
                         modifier = Modifier.padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("MÉDIA DIÁRIA TOTAL", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.calc_daily_average_label), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                         Text(
                             text = "R$ ${String.format(Locale.getDefault(), "%.2f", uiState.dailyAverage)}",
                             style = MaterialTheme.typography.displaySmall,
@@ -88,7 +93,7 @@ fun CalculatorScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Total Mensal: R$ ${String.format(Locale.getDefault(), "%.2f", uiState.monthlyEquivalent)}",
+                            text = stringResource(R.string.calc_monthly_total_format, String.format(Locale.getDefault(), "%.2f", uiState.monthlyEquivalent)),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -100,19 +105,19 @@ fun CalculatorScreen(
                                 onClick = { 
                                     viewModel.applyToProjection()
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("Valor aplicado à projeção!")
+                                        snackbarHostState.showSnackbar(appliedMsg)
                                     }
                                 },
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text("Aplicar à Projeção", fontSize = 12.sp)
+                                Text(stringResource(R.string.calc_apply_button), fontSize = 12.sp)
                             }
                             OutlinedButton(
                                 onClick = { 
                                     viewModel.clearProjection()
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("Lançamentos removidos.")
+                                        snackbarHostState.showSnackbar(clearedMsg)
                                     }
                                 },
                                 modifier = Modifier.weight(1f),
@@ -120,7 +125,7 @@ fun CalculatorScreen(
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                             ) {
-                                Text("Limpar Projeção", fontSize = 12.sp)
+                                Text(stringResource(R.string.calc_clear_button), fontSize = 12.sp)
                             }
                         }
                     }
@@ -135,7 +140,7 @@ fun CalculatorScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Suas Categorias", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.calc_categories_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 IconButton(onClick = { showAddDialog = true }) {
                     Icon(Icons.Default.Add, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 }
@@ -153,7 +158,7 @@ fun CalculatorScreen(
                 if (uiState.items.isEmpty()) {
                     item {
                         Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                            Text("Adicione gastos para calcular a média", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.calc_empty_msg), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -214,22 +219,23 @@ fun CalculatorItemCard(item: CalculatorItem, onDelete: () -> Unit) {
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Text("por dia", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.calc_per_day), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             Spacer(modifier = Modifier.width(8.dp))
             
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = ErrorRed, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = ErrorRed, modifier = Modifier.size(20.dp))
             }
         }
     }
 }
 
+@Composable
 fun translateFrequency(freq: Frequency): String = when(freq) {
-    Frequency.DAILY -> "Diário"
-    Frequency.WEEKLY -> "Semanal"
-    Frequency.MONTHLY -> "Mensal"
+    Frequency.DAILY -> stringResource(R.string.freq_daily)
+    Frequency.WEEKLY -> stringResource(R.string.freq_weekly)
+    Frequency.MONTHLY -> stringResource(R.string.freq_monthly)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -244,25 +250,25 @@ fun AddCalculatorItemDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Novo Gasto para Cálculo") },
+        title = { Text(stringResource(R.string.calc_add_dialog_title)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Categoria (ex: Aluguel)") },
+                    label = { Text(stringResource(R.string.calc_add_category_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = value,
                     onValueChange = { value = it },
-                    label = { Text("Valor") },
+                    label = { Text(stringResource(R.string.calc_value_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Frequência do Valor", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.calc_freq_label), style = MaterialTheme.typography.labelMedium)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Frequency.entries.forEach { freq ->
                         val isSelected = frequency == freq
@@ -280,11 +286,11 @@ fun AddCalculatorItemDialog(
                 val v = value.toDoubleOrNull() ?: 0.0
                 onConfirm(name, v, frequency)
             }) {
-                Text("Adicionar")
+                Text(stringResource(R.string.add))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }

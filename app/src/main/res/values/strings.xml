@@ -1,3 +1,199 @@
 <resources>
     <string name="app_name">PilloraMoney</string>
+
+    <!-- Generic -->
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="reset">Reset</string>
+    <string name="loading">Loading…</string>
+    <string name="version">Pillora Money v1.2</string>
+    <string name="close">Close</string>
+    <string name="add">Add</string>
+    <string name="items">items</string>
+
+    <!-- Login Screen -->
+    <string name="login_title">Pillora Money</string>
+    <string name="login_welcome">Welcome back!</string>
+    <string name="login_email_label">E-mail</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_button">Sign In</string>
+    <string name="login_google_button">Sign in with Google</string>
+    <string name="login_no_account">Don\'t have an account? Sign up</string>
+
+    <!-- Register Screen -->
+    <string name="register_title">Create Account</string>
+    <string name="register_confirm_password">Confirm Password</string>
+    <string name="register_button">Register</string>
+    <string name="register_has_account">Already have an account? Log in</string>
+    <string name="register_passwords_dont_match">Passwords do not match</string>
+
+    <!-- Home Screen -->
+    <string name="home_totals">Totals!</string>
+    <string name="home_month_calculations">Month calculations</string>
+    <string name="home_performance">Performance</string>
+    <string name="home_entries">Entries</string>
+    <string name="home_expenses">Expenses</string>
+    <string name="home_daily_average">Daily Average</string>
+    <string name="home_saved">Saved</string>
+    <string name="home_card">Card</string>
+    <string name="home_final_balance">Final Balance</string>
+    <string name="home_cost_of_living">Cost of living</string>
+    <string name="home_above_income">Above income</string>
+    <string name="home_within_expected">Within expected</string>
+    <string name="home_bills_expenses">Bills/Expenses</string>
+    <string name="home_daily_spending">Daily Spending</string>
+    <string name="home_card_invoices">Card Invoices</string>
+    <string name="home_total_cost_of_living">Total Cost of Living</string>
+    <string name="home_planned_average">Planned Average</string>
+    <string name="home_real_average">Real Average</string>
+    <string name="home_difference">Difference</string>
+    <string name="home_above">above</string>
+    <string name="home_below">below</string>
+    <string name="home_goal_met">Goal met!</string>
+    <string name="home_saving">Saving...</string>
+    <string name="home_of">of</string>
+
+    <!-- Drawer -->
+    <string name="drawer_main">MAIN</string>
+    <string name="drawer_tools">TOOLS</string>
+    <string name="drawer_system">SYSTEM</string>
+    <string name="drawer_totals">Totals!</string>
+    <string name="drawer_projection">Daily Projection</string>
+    <string name="drawer_balance_horizon">Balance Horizon</string>
+    <string name="drawer_transactions">Transactions</string>
+    <string name="drawer_calculator">Calculator</string>
+    <string name="drawer_subscription">Subscription</string>
+    <string name="drawer_settings">Settings</string>
+    <string name="drawer_logout">Logout</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_system">System Default</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_test_notifications">Test Notifications NOW</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_logout_button">Logout from Account</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">System Default</string>
+    <string name="settings_language_pt">Portuguese</string>
+    <string name="settings_language_en">English</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_tx_title">Add Transaction</string>
+    <string name="add_tx_description_label">Description (e.g., Grocery)</string>
+    <string name="add_tx_value_label">Value (R$)</string>
+    <string name="add_tx_date_label">Date (DD/MM/YYYY)</string>
+    <string name="add_tx_repetition">Repetition</string>
+    <string name="add_tx_num_months">Number of months</string>
+    <string name="add_tx_num_days">Number of days</string>
+    <string name="add_tx_save_button">SAVE TRANSACTION</string>
+    <string name="add_tx_recent_title">Transactions (%s)</string>
+    <string name="add_tx_no_records">No recent records</string>
+    <string name="add_tx_reset_confirm_title">Reset Confirmation</string>
+    <string name="add_tx_reset_confirm_msg">Do you want to delete the transactions? Choose if you want to reset only this category or everything.</string>
+    <string name="add_tx_reset_all">General (ALL)</string>
+    <string name="add_tx_reset_only_this">Only %s</string>
+
+    <!-- Transaction Repetition Options -->
+    <string name="tx_rep_once">Only once</string>
+    <string name="tx_rep_daily">Daily</string>
+    <string name="tx_rep_weekly">Weekly</string>
+    <string name="tx_rep_monthly">Monthly</string>
+    <string name="tx_rep_n_days">Every N days</string>
+    <string name="tx_rep_n_months">Every N months</string>
+
+    <!-- Balance Horizon -->
+    <string name="balance_horizon_title">Balance Horizon</string>
+
+    <!-- Spreadsheet Screen -->
+    <string name="spreadsheet_day">DAY</string>
+    <string name="spreadsheet_in">IN</string>
+    <string name="spreadsheet_out">OUT</string>
+    <string name="spreadsheet_daily">DAILY</string>
+    <string name="spreadsheet_savings">SAVINGS</string>
+    <string name="spreadsheet_card">CARD</string>
+    <string name="spreadsheet_balance">BALANCE</string>
+    <string name="spreadsheet_details_title">Details of %1$s - Day %2$d</string>
+    <string name="spreadsheet_existing_items">Existing Items:</string>
+    <string name="spreadsheet_no_description">No description</string>
+    <string name="spreadsheet_add_new">Add New:</string>
+    <string name="spreadsheet_value">Value</string>
+    <string name="spreadsheet_description">Description</string>
+    <string name="spreadsheet_repetition">Repetition</string>
+    <string name="spreadsheet_months">Months</string>
+    <string name="spreadsheet_days">Days</string>
+    <string name="tx_type_in">In</string>
+    <string name="tx_type_out">Out</string>
+    <string name="tx_type_daily">Daily Expense</string>
+    <string name="tx_type_savings">Savings</string>
+    <string name="tx_type_card">Card</string>
+    <string name="tx_type_generic">Transaction</string>
+
+    <!-- Savings Detail -->
+    <string name="savings_title">My Savings</string>
+    <string name="savings_accumulated_value">ACCUMULATED VALUE</string>
+    <string name="savings_goal_format">Goal: R$ %s</string>
+    <string name="savings_progress_format">%d%% completed</string>
+    <string name="savings_set_goal">Set Savings Goal</string>
+    <string name="savings_history_title">Savings History</string>
+    <string name="savings_no_history">No savings recorded</string>
+    <string name="savings_default_desc">Savings</string>
+    <string name="savings_goal_dialog_title">Savings Goal</string>
+    <string name="savings_goal_input_label">Total Target Value</string>
+
+    <!-- Subscription Screen -->
+    <string name="sub_title">Plans and Subscription</string>
+    <string name="sub_welcome">Choose the best plan for you</string>
+    <string name="sub_description">Keep your data safe in the cloud and get rid of ads.</string>
+    <string name="sub_plan_free">Free Plan</string>
+    <string name="sub_plan_premium">Premium Plan</string>
+    <string name="sub_price_free">R$ 0,00</string>
+    <string name="sub_price_premium">R$ 19,90 / month</string>
+    <string name="sub_feat_projection">Projection Spreadsheet</string>
+    <string name="sub_feat_calculator">Daily Calculator</string>
+    <string name="sub_feat_horizon">Balance Horizon</string>
+    <string name="sub_feat_local_only">Information saved locally</string>
+    <string name="sub_feat_ads">Contains Ads</string>
+    <string name="sub_feat_all_free">Everything in Free Plan</string>
+    <string name="sub_feat_db_saved">Data saved in Database</string>
+    <string name="sub_feat_cloud_sync">Cloud Synchronization</string>
+    <string name="sub_feat_no_ads">No Ads</string>
+    <string name="sub_feat_priority_support">Priority Support</string>
+    <string name="sub_recommended">RECOMMENDED</string>
+    <string name="sub_select_plan">Select Plan</string>
+    <string name="sub_current_plan">Current Plan</string>
+    <string name="sub_simulate_downgrade">Simulate Expiration (Downgrade)</string>
+
+    <!-- Downgrade Screen -->
+    <string name="downgrade_expired_title">Your subscription has expired!</string>
+    <string name="downgrade_expired_msg">Your data is no longer being synced to the cloud. You have a 7-day grace period to renew your subscription without losing access to the data saved in the database.</string>
+    <string name="downgrade_grace_period_msg">Grace period active: Renew now to maintain synchronization.</string>
+    <string name="downgrade_post_grace_msg">After 7 days without payment, new data will be saved locally only.</string>
+    <string name="downgrade_renew_button">Renew Subscription</string>
+    <string name="downgrade_continue_free">Continue with Free Plan</string>
+
+    <!-- Calculator Screen -->
+    <string name="calc_title">Daily Calculator</string>
+    <string name="calc_subtitle">Consolidate your recurring expenses</string>
+    <string name="calc_daily_average_label">TOTAL DAILY AVERAGE</string>
+    <string name="calc_monthly_total_format">Monthly Total: R$ %s</string>
+    <string name="calc_apply_button">Apply to Projection</string>
+    <string name="calc_clear_button">Clear Projection</string>
+    <string name="calc_applied_msg">Value applied to projection!</string>
+    <string name="calc_cleared_msg">Transactions removed.</string>
+    <string name="calc_categories_title">Your Categories</string>
+    <string name="calc_empty_msg">Add expenses to calculate the average</string>
+    <string name="calc_per_day">per day</string>
+    <string name="calc_add_dialog_title">New Expense for Calculation</string>
+    <string name="calc_add_category_label">Category (e.g., Rent)</string>
+    <string name="calc_value_label">Value</string>
+    <string name="calc_freq_label">Value Frequency</string>
+    <string name="freq_daily">Daily</string>
+    <string name="freq_weekly">Weekly</string>
+    <string name="freq_monthly">Monthly</string>
 </resources>

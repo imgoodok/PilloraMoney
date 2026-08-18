@@ -1,0 +1,199 @@
+<resources>
+    <string name="app_name">PilloraMoney</string>
+
+    <!-- Generic -->
+    <string name="back">Voltar</string>
+    <string name="save">Salvar</string>
+    <string name="delete">Excluir</string>
+    <string name="cancel">Cancelar</string>
+    <string name="reset">Resetar</string>
+    <string name="loading">Carregando…</string>
+    <string name="version">Pillora Money v1.2</string>
+    <string name="close">Fechar</string>
+    <string name="add">Adicionar</string>
+    <string name="items">itens</string>
+
+    <!-- Login Screen -->
+    <string name="login_title">Pillora Money</string>
+    <string name="login_welcome">Bem-vindo de volta!</string>
+    <string name="login_email_label">E-mail</string>
+    <string name="login_password_label">Senha</string>
+    <string name="login_button">Entrar</string>
+    <string name="login_google_button">Entrar com Google</string>
+    <string name="login_no_account">Não tem uma conta? Cadastre-se</string>
+
+    <!-- Register Screen -->
+    <string name="register_title">Criar Conta</string>
+    <string name="register_confirm_password">Confirmar Senha</string>
+    <string name="register_button">Cadastrar</string>
+    <string name="register_has_account">Já tem uma conta? Faça login</string>
+    <string name="register_passwords_dont_match">As senhas não coincidem</string>
+
+    <!-- Home Screen -->
+    <string name="home_totals">Totais!</string>
+    <string name="home_month_calculations">Cálculos do mês</string>
+    <string name="home_performance">Performance</string>
+    <string name="home_entries">Entradas</string>
+    <string name="home_expenses">Saídas</string>
+    <string name="home_daily_average">Diário Médio</string>
+    <string name="home_saved">Economizado</string>
+    <string name="home_card">Cartão</string>
+    <string name="home_final_balance">Saldo Final</string>
+    <string name="home_cost_of_living">Custo de vida</string>
+    <string name="home_above_income">Acima da renda</string>
+    <string name="home_within_expected">Dentro do esperado</string>
+    <string name="home_bills_expenses">Contas/Saídas</string>
+    <string name="home_daily_spending">Gastos Diários</string>
+    <string name="home_card_invoices">Faturas Cartão</string>
+    <string name="home_total_cost_of_living">Total Custo de Vida</string>
+    <string name="home_planned_average">Média Planejada</string>
+    <string name="home_real_average">Média Real</string>
+    <string name="home_difference">Diferença</string>
+    <string name="home_above">acima</string>
+    <string name="home_below">abaixo</string>
+    <string name="home_goal_met">Meta batida!</string>
+    <string name="home_saving">Guardando...</string>
+    <string name="home_of">de</string>
+
+    <!-- Drawer -->
+    <string name="drawer_main">PRINCIPAL</string>
+    <string name="drawer_tools">FERRAMENTAS</string>
+    <string name="drawer_system">SISTEMA</string>
+    <string name="drawer_totals">Totais!</string>
+    <string name="drawer_projection">Projeção Diária</string>
+    <string name="drawer_balance_horizon">Horizonte de Saldo</string>
+    <string name="drawer_transactions">Lançamentos</string>
+    <string name="drawer_calculator">Calculadora</string>
+    <string name="drawer_subscription">Assinatura</string>
+    <string name="drawer_settings">Configurações</string>
+    <string name="drawer_logout">Sair</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Configurações</string>
+    <string name="settings_appearance">Aparência</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_theme_system">Padrão do Sistema</string>
+    <string name="settings_notifications">Notificações</string>
+    <string name="settings_test_notifications">Testar Notificações AGORA</string>
+    <string name="settings_account">Conta</string>
+    <string name="settings_logout_button">Sair da Conta</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_system">Padrão do Sistema</string>
+    <string name="settings_language_pt">Português</string>
+    <string name="settings_language_en">Inglês</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_tx_title">Adicionar Lançamento</string>
+    <string name="add_tx_description_label">Descrição (ex: Supermercado)</string>
+    <string name="add_tx_value_label">Valor (R$)</string>
+    <string name="add_tx_date_label">Data (DD/MM/AAAA)</string>
+    <string name="add_tx_repetition">Repetição</string>
+    <string name="add_tx_num_months">Quantidade de meses</string>
+    <string name="add_tx_num_days">Quantidade de dias</string>
+    <string name="add_tx_save_button">SALVAR LANÇAMENTO</string>
+    <string name="add_tx_recent_title">Lançamentos (%s)</string>
+    <string name="add_tx_no_records">Nenhum registro recente</string>
+    <string name="add_tx_reset_confirm_title">Confirmação de Reset</string>
+    <string name="add_tx_reset_confirm_msg">Deseja apagar os lançamentos? Escolha se quer resetar apenas esta categoria ou tudo.</string>
+    <string name="add_tx_reset_all">Geral (TUDO)</string>
+    <string name="add_tx_reset_only_this">Apenas %s</string>
+
+    <!-- Transaction Repetition Options -->
+    <string name="tx_rep_once">Apenas uma vez</string>
+    <string name="tx_rep_daily">Diário</string>
+    <string name="tx_rep_weekly">Semanal</string>
+    <string name="tx_rep_monthly">Mensal</string>
+    <string name="tx_rep_n_days">A cada N dias</string>
+    <string name="tx_rep_n_months">A cada N meses</string>
+
+    <!-- Balance Horizon -->
+    <string name="balance_horizon_title">Horizonte de Saldos</string>
+
+    <!-- Spreadsheet Screen -->
+    <string name="spreadsheet_day">DIA</string>
+    <string name="spreadsheet_in">ENTRADA</string>
+    <string name="spreadsheet_out">SAÍDA</string>
+    <string name="spreadsheet_daily">DIÁRIO</string>
+    <string name="spreadsheet_savings">ECONOMIA</string>
+    <string name="spreadsheet_card">CARTÃO</string>
+    <string name="spreadsheet_balance">SALDO</string>
+    <string name="spreadsheet_details_title">Detalhes de %1$s - Dia %2$d</string>
+    <string name="spreadsheet_existing_items">Lançamentos Existentes:</string>
+    <string name="spreadsheet_no_description">Sem descrição</string>
+    <string name="spreadsheet_add_new">Adicionar Novo:</string>
+    <string name="spreadsheet_value">Valor</string>
+    <string name="spreadsheet_description">Descrição</string>
+    <string name="spreadsheet_repetition">Repetição</string>
+    <string name="spreadsheet_months">Meses</string>
+    <string name="spreadsheet_days">Dias</string>
+    <string name="tx_type_in">Entrada</string>
+    <string name="tx_type_out">Saída</string>
+    <string name="tx_type_daily">Gasto Diário</string>
+    <string name="tx_type_savings">Economia</string>
+    <string name="tx_type_card">Cartão</string>
+    <string name="tx_type_generic">Lançamento</string>
+
+    <!-- Savings Detail -->
+    <string name="savings_title">Minhas Economias</string>
+    <string name="savings_accumulated_value">VALOR ACUMULADO</string>
+    <string name="savings_goal_format">Meta: R$ %s</string>
+    <string name="savings_progress_format">%d%% concluído</string>
+    <string name="savings_set_goal">Definir Meta de Economia</string>
+    <string name="savings_history_title">Histórico de Aportes</string>
+    <string name="savings_no_history">Nenhum aporte registrado</string>
+    <string name="savings_default_desc">Economia</string>
+    <string name="savings_goal_dialog_title">Meta de Economia</string>
+    <string name="savings_goal_input_label">Valor Total Objetivo</string>
+
+    <!-- Subscription Screen -->
+    <string name="sub_title">Planos e Assinatura</string>
+    <string name="sub_welcome">Escolha o melhor plano para você</string>
+    <string name="sub_description">Tenha seus dados seguros na nuvem e livre-se dos anúncios.</string>
+    <string name="sub_plan_free">Plano Gratuito</string>
+    <string name="sub_plan_premium">Plano Premium</string>
+    <string name="sub_price_free">R$ 0,00</string>
+    <string name="sub_price_premium">R$ 19,90 / mês</string>
+    <string name="sub_feat_projection">Planilha de Projeção</string>
+    <string name="sub_feat_calculator">Calculadora Diária</string>
+    <string name="sub_feat_horizon">Horizonte de Saldo</string>
+    <string name="sub_feat_local_only">Informações salvas localmente</string>
+    <string name="sub_feat_ads">Contém Anúncios</string>
+    <string name="sub_feat_all_free">Tudo do Plano Gratuito</string>
+    <string name="sub_feat_db_saved">Dados salvos no Banco de Dados</string>
+    <string name="sub_feat_cloud_sync">Sincronização em Nuvem</string>
+    <string name="sub_feat_no_ads">Sem Anúncios</string>
+    <string name="sub_feat_priority_support">Suporte Prioritário</string>
+    <string name="sub_recommended">RECOMENDADO</string>
+    <string name="sub_select_plan">Selecionar Plano</string>
+    <string name="sub_current_plan">Plano Atual</string>
+    <string name="sub_simulate_downgrade">Simular Expiração (Downgrade)</string>
+
+    <!-- Downgrade Screen -->
+    <string name="downgrade_expired_title">Sua assinatura expirou!</string>
+    <string name="downgrade_expired_msg">Seus dados não estão mais sendo sincronizados na nuvem. Você tem um prazo de 7 dias para renovar sua assinatura sem perder o acesso aos dados salvos no banco de dados.</string>
+    <string name="downgrade_grace_period_msg">Período de carência ativo: Renove agora para manter a sincronização.</string>
+    <string name="downgrade_post_grace_msg">Após 7 dias sem pagamento, os novos dados serão salvos apenas localmente.</string>
+    <string name="downgrade_renew_button">Renovar Assinatura</string>
+    <string name="downgrade_continue_free">Continuar com Plano Gratuito</string>
+
+    <!-- Calculator Screen -->
+    <string name="calc_title">Calculadora Diária</string>
+    <string name="calc_subtitle">Consolide seus gastos recorrentes</string>
+    <string name="calc_daily_average_label">MÉDIA DIÁRIA TOTAL</string>
+    <string name="calc_monthly_total_format">Total Mensal: R$ %s</string>
+    <string name="calc_apply_button">Aplicar à Projeção</string>
+    <string name="calc_clear_button">Limpar Projeção</string>
+    <string name="calc_applied_msg">Valor aplicado à projeção!</string>
+    <string name="calc_cleared_msg">Lançamentos removidos.</string>
+    <string name="calc_categories_title">Suas Categorias</string>
+    <string name="calc_empty_msg">Adicione gastos para calcular a média</string>
+    <string name="calc_per_day">por dia</string>
+    <string name="calc_add_dialog_title">Novo Gasto para Cálculo</string>
+    <string name="calc_add_category_label">Categoria (ex: Aluguel)</string>
+    <string name="calc_value_label">Valor</string>
+    <string name="calc_freq_label">Frequência do Valor</string>
+    <string name="freq_daily">Diário</string>
+    <string name="freq_weekly">Semanal</string>
+    <string name="freq_monthly">Mensal</string>
+</resources>

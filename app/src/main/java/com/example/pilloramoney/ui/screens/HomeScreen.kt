@@ -16,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import com.example.pilloramoney.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,14 +36,15 @@ fun HomeScreen(
     onNavigateToSavings: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val locale = java.util.Locale.getDefault()
     var isPerformanceExpanded by remember { mutableStateOf(false) }
     var isCustoVidaExpanded by remember { mutableStateOf(false) }
     var isDiarioExpanded by remember { mutableStateOf(false) }
 
-    val monthName = remember(uiState.selectedMonth) {
-        SimpleDateFormat("MMMM yyyy", Locale("pt", "BR"))
+    val monthName = remember(uiState.selectedMonth, locale) {
+        SimpleDateFormat("MMMM yyyy", locale)
             .format(uiState.selectedMonth.time)
-            .replaceFirstChar { it.uppercase() }
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
     }
 
     Column(
@@ -91,13 +94,13 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
         Text(
-            "Totais!", 
+            stringResource(R.string.home_totals), 
             style = MaterialTheme.typography.headlineMedium, 
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            "Cálculos do mês", 
+            stringResource(R.string.home_month_calculations), 
             style = MaterialTheme.typography.labelMedium, 
             color = TextSecondary,
             fontWeight = FontWeight.Bold
@@ -109,7 +112,7 @@ fun HomeScreen(
             onClick = { isPerformanceExpanded = !isPerformanceExpanded }
         ) {
             DashboardMetricRow(
-                label = "Performance",
+                label = stringResource(R.string.home_performance),
                 value = uiState.totalBalance,
                 status = uiState.performanceStatus,
                 color = if (uiState.totalBalance < 0) ErrorRed else SuccessGreen,
@@ -131,14 +134,14 @@ fun HomeScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ExpandedMetricItem("Entradas", uiState.monthEntries, SuccessGreen, dotColor = SuccessGreen, initial = "E")
-                    ExpandedMetricItem("Saídas", uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed, initial = "S")
-                    ExpandedMetricItem("Diário Médio", uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta, initial = "D")
-                    ExpandedMetricItem("Economizado", uiState.monthSavings, PrimaryOrange, dotColor = PrimaryOrange, initial = "Ec")
-                    ExpandedMetricItem("Cartão", uiState.cardExpenses, WarningOrange, dotColor = WarningOrange, initial = "C")
+                    ExpandedMetricItem(stringResource(R.string.home_entries), uiState.monthEntries, SuccessGreen, dotColor = SuccessGreen, initial = "E")
+                    ExpandedMetricItem(stringResource(R.string.home_expenses), uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed, initial = "S")
+                    ExpandedMetricItem(stringResource(R.string.home_daily_average), uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta, initial = "D")
+                    ExpandedMetricItem(stringResource(R.string.home_saved), uiState.monthSavings, PrimaryOrange, dotColor = PrimaryOrange, initial = "Ec")
+                    ExpandedMetricItem(stringResource(R.string.home_card), uiState.cardExpenses, WarningOrange, dotColor = WarningOrange, initial = "C")
                     
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    ExpandedMetricItem("Saldo Final", uiState.totalBalance, if (uiState.totalBalance < 0) ErrorRed else SuccessGreen, isBold = true)
+                    ExpandedMetricItem(stringResource(R.string.home_final_balance), uiState.totalBalance, if (uiState.totalBalance < 0) ErrorRed else SuccessGreen, isBold = true)
                 }
             }
         }
@@ -150,9 +153,9 @@ fun HomeScreen(
             onClick = { onNavigateToSavings() }
         ) {
             DashboardProgressMetric(
-                label = "Economizado",
+                label = stringResource(R.string.home_saved),
                 percentage = uiState.savingsPercentage,
-                status = if (uiState.totalSavingsAccumulated >= uiState.savingsGoal && uiState.savingsGoal > 0) "Meta batida!" else "Guardando...",
+                status = if (uiState.totalSavingsAccumulated >= uiState.savingsGoal && uiState.savingsGoal > 0) stringResource(R.string.home_goal_met) else stringResource(R.string.home_saving),
                 color = PrimaryOrange,
                 currentValue = uiState.totalSavingsAccumulated,
                 goalValue = uiState.savingsGoal,
@@ -167,9 +170,9 @@ fun HomeScreen(
             onClick = { isCustoVidaExpanded = !isCustoVidaExpanded }
         ) {
             DashboardMetricRow(
-                label = "Custo de vida",
+                label = stringResource(R.string.home_cost_of_living),
                 value = uiState.costOfLiving,
-                status = if (uiState.costOfLiving > uiState.monthEntries && uiState.monthEntries > 0) "Acima da renda" else "Dentro do esperado",
+                status = if (uiState.costOfLiving > uiState.monthEntries && uiState.monthEntries > 0) stringResource(R.string.home_above_income) else stringResource(R.string.home_within_expected),
                 color = if (uiState.costOfLiving > uiState.monthEntries && uiState.monthEntries > 0) ErrorRed else MaterialTheme.colorScheme.onSurface,
                 iconsWithInitials = listOf(
                     ErrorRed to "S",
@@ -187,11 +190,11 @@ fun HomeScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ExpandedMetricItem("Contas/Saídas", uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed, initial = "S")
-                    ExpandedMetricItem("Gastos Diários", uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta, initial = "D")
-                    ExpandedMetricItem("Faturas Cartão", uiState.cardExpenses, WarningOrange, dotColor = WarningOrange, initial = "C")
+                    ExpandedMetricItem(stringResource(R.string.home_bills_expenses), uiState.monthExpenses - uiState.cardExpenses - (uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH)), ErrorRed, dotColor = ErrorRed, initial = "S")
+                    ExpandedMetricItem(stringResource(R.string.home_daily_spending), uiState.dailyAverageReal * Calendar.getInstance().get(Calendar.DAY_OF_MONTH), Color.Magenta, dotColor = Color.Magenta, initial = "D")
+                    ExpandedMetricItem(stringResource(R.string.home_card_invoices), uiState.cardExpenses, WarningOrange, dotColor = WarningOrange, initial = "C")
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    ExpandedMetricItem("Total Custo de Vida", uiState.costOfLiving, ErrorRed, isBold = true)
+                    ExpandedMetricItem(stringResource(R.string.home_total_cost_of_living), uiState.costOfLiving, ErrorRed, isBold = true)
                 }
             }
         }
@@ -204,7 +207,7 @@ fun HomeScreen(
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
-                    Text("Diário médio", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.home_daily_average), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
                                             Box(modifier = Modifier.size(20.dp).background(Color.Magenta, CircleShape), contentAlignment = Alignment.Center) {
                                                 Text(
@@ -245,13 +248,13 @@ fun HomeScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ExpandedMetricItem("Média Planejada", uiState.dailyAveragePlanned, MaterialTheme.colorScheme.onSurface)
-                    ExpandedMetricItem("Média Real", uiState.dailyAverageReal, if (diff > 0) ErrorRed else SuccessGreen)
+                    ExpandedMetricItem(stringResource(R.string.home_planned_average), uiState.dailyAveragePlanned, MaterialTheme.colorScheme.onSurface)
+                    ExpandedMetricItem(stringResource(R.string.home_real_average), uiState.dailyAverageReal, if (diff > 0) ErrorRed else SuccessGreen)
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Diferença", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                        Text(stringResource(R.string.home_difference), style = MaterialTheme.typography.bodySmall, color = TextSecondary)
                         Text(
-                            text = if (diff > 0) "R$ ${String.format(locale, "%.2f", diff)} acima" else "R$ ${String.format(locale, "%.2f", -diff)} abaixo",
+                            text = if (diff > 0) "R$ ${String.format(locale, "%.2f", diff)} ${stringResource(R.string.home_above)}" else "R$ ${String.format(locale, "%.2f", -diff)} ${stringResource(R.string.home_below)}",
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
                             color = if (diff > 0) ErrorRed else SuccessGreen
@@ -388,7 +391,7 @@ fun DashboardProgressMetric(
                 )
             }
             Text(
-                text = "R$ ${String.format(Locale.getDefault(), "%.2f", currentValue)} de ${String.format(Locale.getDefault(), "%.2f", goalValue)}",
+                text = "R$ ${String.format(Locale.getDefault(), "%.2f", currentValue)} ${stringResource(R.string.home_of)} R$ ${String.format(Locale.getDefault(), "%.2f", goalValue)}",
                 style = MaterialTheme.typography.labelSmall,
                 color = TextSecondary,
                 modifier = Modifier.padding(top = 8.dp)

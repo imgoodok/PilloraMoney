@@ -14,8 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.pilloramoney.R
 import androidx.compose.ui.unit.sp
 import com.example.pilloramoney.navigation.Screen
 import com.example.pilloramoney.ui.theme.*
@@ -72,38 +74,38 @@ fun PilloraDrawer(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Sections
-        DrawerSectionHeader("PRINCIPAL")
-        DrawerItem(Icons.Default.Dashboard, "Totais!") {
+        DrawerSectionHeader(stringResource(R.string.drawer_main))
+        DrawerItem(Icons.Default.Dashboard, stringResource(R.string.drawer_totals)) {
             onNavigate(Screen.Home)
             closeDrawer()
         }
-        DrawerItem(Icons.Default.CalendarMonth, "Projeção Diária") {
+        DrawerItem(Icons.Default.CalendarMonth, stringResource(R.string.drawer_projection)) {
             onNavigate(Screen.Spreadsheet)
             closeDrawer()
         }
-        DrawerItem(Icons.AutoMirrored.Filled.TrendingUp, "Horizonte de Saldo") {
+        DrawerItem(Icons.AutoMirrored.Filled.TrendingUp, stringResource(R.string.drawer_balance_horizon)) {
             onNavigate(Screen.BalanceHorizon)
             closeDrawer()
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        DrawerSectionHeader("FERRAMENTAS")
-        DrawerItem(Icons.Default.AddCircle, "Lançamentos") {
+        DrawerSectionHeader(stringResource(R.string.drawer_tools))
+        DrawerItem(Icons.Default.AddCircle, stringResource(R.string.drawer_transactions)) {
             onNavigate(Screen.AddTransaction)
             closeDrawer()
         }
-        DrawerItem(Icons.Default.Calculate, "Calculadora") {
+        DrawerItem(Icons.Default.Calculate, stringResource(R.string.drawer_calculator)) {
             onNavigate(Screen.Calculator)
             closeDrawer()
         }
         
         Spacer(modifier = Modifier.height(8.dp))
-        DrawerSectionHeader("SISTEMA")
-        DrawerItem(Icons.Default.Star, "Assinatura") {
+        DrawerSectionHeader(stringResource(R.string.drawer_system))
+        DrawerItem(Icons.Default.Star, stringResource(R.string.drawer_subscription)) {
             onNavigate(Screen.Subscription)
             closeDrawer()
         }
-        DrawerItem(Icons.Default.Settings, "Configurações") {
+        DrawerItem(Icons.Default.Settings, stringResource(R.string.drawer_settings)) {
             onNavigate(Screen.Settings)
             closeDrawer()
         }
@@ -114,7 +116,7 @@ fun PilloraDrawer(
         
         DrawerItem(
             icon = Icons.AutoMirrored.Filled.Logout,
-            label = "Sair",
+            label = stringResource(R.string.drawer_logout),
             color = MaterialTheme.colorScheme.error
         ) {
             onLogout()

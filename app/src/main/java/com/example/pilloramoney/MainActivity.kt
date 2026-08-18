@@ -6,10 +6,11 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,7 +38,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -56,9 +58,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val context = LocalContext.current
-            val sharedPrefs = remember { context.getSharedPreferences("prefs", Context.MODE_PRIVATE) }
+            val sharedPrefs = remember { context.getSharedPreferences("prefs", android.content.Context.MODE_PRIVATE) }
             var themePref by remember { mutableStateOf(sharedPrefs.getString("theme", "System") ?: "System") }
             var initialDestination by remember { mutableStateOf<String?>(intent.getStringExtra("destination")) }
+
+            // Obter idioma atual do AppCompatDelegate
+            val currentAppLocales = AppCompatDelegate.getApplicationLocales()
+            val languagePref = if (currentAppLocales.isEmpty) "System" else currentAppLocales.toLanguageTags()
             
             val authViewModel: AuthViewModel = androidx.hilt.navigation.compose.hiltViewModel()
             val user by authViewModel.currentUser.collectAsState()
@@ -75,6 +81,15 @@ class MainActivity : ComponentActivity() {
                     onThemeChange = { newTheme ->
                         themePref = newTheme
                         sharedPrefs.edit().putString("theme", newTheme).apply()
+                    },
+                    currentLanguage = languagePref,
+                    onLanguageChange = { newLang ->
+                        val appLocale: LocaleListCompat = if (newLang == "System") {
+                            LocaleListCompat.getEmptyLocaleList()
+                        } else {
+                            LocaleListCompat.forLanguageTags(newLang)
+                        }
+                        AppCompatDelegate.setApplicationLocales(appLocale)
                     },
                     initialDestination = initialDestination,
                     onDestinationHandled = { initialDestination = null },
@@ -133,6 +148,8 @@ class MainActivity : ComponentActivity() {
 fun PilloraApp(
     currentTheme: String, 
     onThemeChange: (String) -> Unit,
+    currentLanguage: String,
+    onLanguageChange: (String) -> Unit,
     initialDestination: String? = null,
     onDestinationHandled: () -> Unit = {},
     isUserLoggedIn: Boolean,
@@ -146,7 +163,6 @@ fun PilloraApp(
     val currentRoute = currentDestination?.substringAfterLast(".")
 
     val subscriptionViewModel: SubscriptionViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-    val user by authViewModel.currentUser.collectAsState()
     val subscription by subscriptionViewModel.subscriptionStatus.collectAsState()
 
     // Proteção de Rotas: Redirecionar para Login se não estiver logado
@@ -275,6 +291,8 @@ fun PilloraApp(
                         SettingsScreen(
                             currentTheme = currentTheme,
                             onThemeChange = onThemeChange,
+                            currentLanguage = currentLanguage,
+                            onLanguageChange = onLanguageChange,
                             onBack = { navController.popBackStack() },
                             onLogout = { authViewModel.signOut() }
                         )

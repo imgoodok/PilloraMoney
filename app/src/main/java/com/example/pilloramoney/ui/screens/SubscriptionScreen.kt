@@ -19,7 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.pilloramoney.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,10 +40,10 @@ fun SubscriptionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Planos e Assinatura") },
+                title = { Text(stringResource(R.string.sub_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.Close, contentDescription = "Fechar")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                     }
                 }
             )
@@ -62,7 +64,7 @@ fun SubscriptionScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Escolha o melhor plano para você",
+                text = stringResource(R.string.sub_welcome),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -72,7 +74,7 @@ fun SubscriptionScreen(
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
-                text = "Tenha seus dados seguros na nuvem e livre-se dos anúncios.",
+                text = stringResource(R.string.sub_description),
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -82,15 +84,15 @@ fun SubscriptionScreen(
 
             // Plan Cards
             PlanCard(
-                title = "Plano Gratuito",
-                price = "R$ 0,00",
+                title = stringResource(R.string.sub_plan_free),
+                price = stringResource(R.string.sub_price_free),
                 isSelected = subscription.status == SubscriptionStatus.FREE,
                 benefits = listOf(
-                    Benefit("Planilha de Projeção", true),
-                    Benefit("Calculadora Diária", true),
-                    Benefit("Horizonte de Saldo", true),
-                    Benefit("Informações salvas localmente", false, true),
-                    Benefit("Contém Anúncios", false, true)
+                    Benefit(stringResource(R.string.sub_feat_projection), true),
+                    Benefit(stringResource(R.string.sub_feat_calculator), true),
+                    Benefit(stringResource(R.string.sub_feat_horizon), true),
+                    Benefit(stringResource(R.string.sub_feat_local_only), false, true),
+                    Benefit(stringResource(R.string.sub_feat_ads), false, true)
                 ),
                 onSelect = { viewModel.updateSubscription(SubscriptionStatus.FREE) }
             )
@@ -98,16 +100,16 @@ fun SubscriptionScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             PlanCard(
-                title = "Plano Premium",
-                price = "R$ 19,90 / mês",
+                title = stringResource(R.string.sub_plan_premium),
+                price = stringResource(R.string.sub_price_premium),
                 isSelected = subscription.status == SubscriptionStatus.PREMIUM,
                 isHighlight = true,
                 benefits = listOf(
-                    Benefit("Tudo do Plano Gratuito", true),
-                    Benefit("Dados salvos no Banco de Dados", true),
-                    Benefit("Sincronização em Nuvem", true, icon = Icons.Default.CloudUpload),
-                    Benefit("Sem Anúncios", true),
-                    Benefit("Suporte Prioritário", true)
+                    Benefit(stringResource(R.string.sub_feat_all_free), true),
+                    Benefit(stringResource(R.string.sub_feat_db_saved), true),
+                    Benefit(stringResource(R.string.sub_feat_cloud_sync), true, icon = Icons.Default.CloudUpload),
+                    Benefit(stringResource(R.string.sub_feat_no_ads), true),
+                    Benefit(stringResource(R.string.sub_feat_priority_support), true)
                 ),
                 onSelect = { viewModel.updateSubscription(SubscriptionStatus.PREMIUM) }
             )
@@ -119,7 +121,7 @@ fun SubscriptionScreen(
                     onClick = { viewModel.updateSubscription(SubscriptionStatus.EXPIRED) },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Simular Expiração (Downgrade)")
+                    Text(stringResource(R.string.sub_simulate_downgrade))
                 }
             }
         }
@@ -162,7 +164,7 @@ fun PlanCard(
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
-                            "RECOMENDADO",
+                            stringResource(R.string.sub_recommended),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
@@ -210,7 +212,7 @@ fun PlanCard(
                 colors = if (isSelected) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary) else ButtonDefaults.buttonColors(),
                 enabled = !isSelected
             ) {
-                Text(if (isSelected) "Plano Atual" else "Selecionar Plano")
+                Text(if (isSelected) stringResource(R.string.sub_current_plan) else stringResource(R.string.sub_select_plan))
             }
         }
     }

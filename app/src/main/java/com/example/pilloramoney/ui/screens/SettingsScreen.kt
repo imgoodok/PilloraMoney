@@ -11,7 +11,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.pilloramoney.R
 import androidx.compose.ui.unit.sp
 import com.example.pilloramoney.notifications.NotificationScheduler
 import com.example.pilloramoney.ui.theme.*
@@ -21,6 +23,8 @@ import com.example.pilloramoney.ui.theme.*
 fun SettingsScreen(
     currentTheme: String,
     onThemeChange: (String) -> Unit,
+    currentLanguage: String,
+    onLanguageChange: (String) -> Unit,
     onBack: () -> Unit,
     onLogout: () -> Unit
 ) {
@@ -29,10 +33,10 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configurações") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -46,7 +50,7 @@ fun SettingsScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Aparência",
+                text = stringResource(R.string.settings_appearance),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -58,16 +62,38 @@ fun SettingsScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             ) {
                 Column(modifier = Modifier.padding(8.dp)) {
-                    ThemeOption("Claro", currentTheme == "Light") { onThemeChange("Light") }
-                    ThemeOption("Escuro", currentTheme == "Dark") { onThemeChange("Dark") }
-                    ThemeOption("Padrão do Sistema", currentTheme == "System") { onThemeChange("System") }
+                    ThemeOption(stringResource(R.string.settings_theme_light), currentTheme == "Light") { onThemeChange("Light") }
+                    ThemeOption(stringResource(R.string.settings_theme_dark), currentTheme == "Dark") { onThemeChange("Dark") }
+                    ThemeOption(stringResource(R.string.settings_theme_system), currentTheme == "System") { onThemeChange("System") }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Notificações",
+                text = stringResource(R.string.settings_language),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Column(modifier = Modifier.padding(8.dp)) {
+                    val isSystem = currentLanguage == "System" || currentLanguage.isEmpty()
+                    ThemeOption(stringResource(R.string.settings_language_system), isSystem) { onLanguageChange("System") }
+                    ThemeOption(stringResource(R.string.settings_language_pt), !isSystem && currentLanguage.startsWith("pt")) { onLanguageChange("pt") }
+                    ThemeOption(stringResource(R.string.settings_language_en), !isSystem && currentLanguage.startsWith("en")) { onLanguageChange("en") }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = stringResource(R.string.settings_notifications),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -78,13 +104,13 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Testar Notificações AGORA")
+                Text(stringResource(R.string.settings_test_notifications))
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Conta",
+                text = stringResource(R.string.settings_account),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -96,12 +122,12 @@ fun SettingsScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Sair da Conta")
+                Text(stringResource(R.string.settings_logout_button))
             }
             
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "Pillora Money v1.2",
+                text = stringResource(R.string.version),
                 style = MaterialTheme.typography.labelSmall,
                 color = TextSecondary,
                 modifier = Modifier.align(Alignment.CenterHorizontally)

@@ -10,10 +10,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pilloramoney.R
 import com.example.pilloramoney.data.model.SubscriptionStatus
 import com.example.pilloramoney.ui.viewmodels.SubscriptionViewModel
 
@@ -42,7 +44,7 @@ fun DowngradeScreen(
         Spacer(modifier = Modifier.height(24.dp))
         
         Text(
-            text = "Sua assinatura expirou!",
+            text = stringResource(R.string.downgrade_expired_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.error
@@ -51,8 +53,7 @@ fun DowngradeScreen(
         Spacer(modifier = Modifier.height(16.dp))
         
         Text(
-            text = "Seus dados não estão mais sendo sincronizados na nuvem. " +
-                   "Você tem um prazo de 7 dias para renovar sua assinatura sem perder o acesso aos dados salvos no banco de dados.",
+            text = stringResource(R.string.downgrade_expired_msg),
             textAlign = TextAlign.Center,
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -66,7 +67,7 @@ fun DowngradeScreen(
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(
-                    text = "Período de carência ativo: Renove agora para manter a sincronização.",
+                    text = stringResource(R.string.downgrade_grace_period_msg),
                     modifier = Modifier.padding(12.dp),
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     fontSize = 14.sp,
@@ -76,7 +77,7 @@ fun DowngradeScreen(
             }
         } else {
             Text(
-                text = "Após 7 dias sem pagamento, os novos dados serão salvos apenas localmente.",
+                text = stringResource(R.string.downgrade_post_grace_msg),
                 textAlign = TextAlign.Center,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -90,7 +91,7 @@ fun DowngradeScreen(
             onClick = onNavigateToSubscription,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Renovar Assinatura")
+            Text(stringResource(R.string.downgrade_renew_button))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -99,7 +100,7 @@ fun DowngradeScreen(
             onClick = onContinueFree,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Continuar com Plano Gratuito", color = MaterialTheme.colorScheme.secondary)
+            Text(stringResource(R.string.downgrade_continue_free), color = MaterialTheme.colorScheme.secondary)
         }
     }
 }
