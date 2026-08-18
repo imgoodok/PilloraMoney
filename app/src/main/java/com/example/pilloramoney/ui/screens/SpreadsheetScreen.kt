@@ -59,7 +59,7 @@ fun SpreadsheetScreen(
                 color = MaterialTheme.colorScheme.background,
                 tonalElevation = 2.dp
             ) {
-                Column {
+                Column(modifier = Modifier.statusBarsPadding()) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

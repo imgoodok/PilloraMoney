@@ -39,6 +39,7 @@ fun BalanceHorizonScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .statusBarsPadding()
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

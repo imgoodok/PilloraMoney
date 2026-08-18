@@ -47,6 +47,7 @@ fun AddTransactionScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
     ) {
         Column(
             modifier = Modifier

@@ -27,9 +27,10 @@ fun PilloraBottomBar(
         contentAlignment = Alignment.BottomCenter
     ) {
         NavigationBar(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(80.dp),
             containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 8.dp
+            tonalElevation = 8.dp,
+            windowInsets = WindowInsets(0.dp)
         ) {
             // Screen.Home
             BottomNavItem(
@@ -74,7 +75,7 @@ fun PilloraBottomBar(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.White,
             modifier = Modifier
-                .offset(y = (-28).dp) // Raised slightly more for a cleaner "hanging" look
+                .offset(y = (-28).dp) 
                 .size(60.dp),
             elevation = FloatingActionButtonDefaults.elevation(8.dp)
         ) {
@@ -100,8 +101,7 @@ fun RowScope.BottomNavItem(
         icon = { 
             Icon(
                 icon, 
-                contentDescription = label,
-                modifier = Modifier.offset(y = (-4).dp)
+                contentDescription = label
             ) 
         },
         label = null,

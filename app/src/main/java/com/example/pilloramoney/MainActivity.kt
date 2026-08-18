@@ -13,12 +13,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 import androidx.navigation.compose.NavHost
@@ -67,7 +69,6 @@ class MainActivity : AppCompatActivity() {
             val languagePref = if (currentAppLocales.isEmpty) "System" else currentAppLocales.toLanguageTags()
             
             val authViewModel: AuthViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-            val user by authViewModel.currentUser.collectAsState()
 
             val darkTheme = when (themePref) {
                 "Light" -> false
@@ -93,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                     },
                     initialDestination = initialDestination,
                     onDestinationHandled = { initialDestination = null },
-                    isUserLoggedIn = user != null,
+                    isUserLoggedIn = authViewModel.currentUser.collectAsState().value != null,
                     authViewModel = authViewModel
                 )
             }
@@ -230,6 +231,8 @@ fun PilloraApp(
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            contentWindowInsets = WindowInsets(0.dp),
+            containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
                 if (isUserLoggedIn) {
                     PilloraBottomBar(
