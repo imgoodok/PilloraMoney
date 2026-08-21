@@ -27,10 +27,10 @@ fun PilloraBottomBar(
         contentAlignment = Alignment.BottomCenter
     ) {
         NavigationBar(
-            modifier = Modifier.fillMaxWidth().height(80.dp),
+            modifier = Modifier.fillMaxWidth().height(58.dp), // Slimmer
             containerColor = MaterialTheme.colorScheme.surface,
             tonalElevation = 8.dp,
-            windowInsets = WindowInsets(0.dp)
+            windowInsets = WindowInsets(0.dp) // Important to avoid extra padding
         ) {
             // Screen.Home
             BottomNavItem(
@@ -75,14 +75,14 @@ fun PilloraBottomBar(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.White,
             modifier = Modifier
-                .offset(y = (-28).dp) 
-                .size(60.dp),
+                .offset(y = (-14).dp) // Lower than before (-28)
+                .size(51.dp), // Slightly smaller
             elevation = FloatingActionButtonDefaults.elevation(8.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Adicionar",
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -101,7 +101,8 @@ fun RowScope.BottomNavItem(
         icon = { 
             Icon(
                 icon, 
-                contentDescription = label
+                contentDescription = label,
+                modifier = Modifier.offset(y = (0).dp) // Slight lift
             ) 
         },
         label = null,

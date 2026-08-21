@@ -1,6 +1,7 @@
 package com.example.pilloramoney.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -117,6 +119,7 @@ fun HomeScreen(
                 value = uiState.totalBalance,
                 status = uiState.performanceStatus,
                 color = if (uiState.totalBalance < 0) ErrorRed else SuccessGreen,
+                isExpanded = isPerformanceExpanded,
                 iconsWithInitials = listOf(
                     SuccessGreen to "E",
                     ErrorRed to "S",
@@ -175,6 +178,7 @@ fun HomeScreen(
                 value = uiState.costOfLiving,
                 status = if (uiState.costOfLiving > uiState.monthEntries && uiState.monthEntries > 0) stringResource(R.string.home_above_income) else stringResource(R.string.home_within_expected),
                 color = if (uiState.costOfLiving > uiState.monthEntries && uiState.monthEntries > 0) ErrorRed else MaterialTheme.colorScheme.onSurface,
+                isExpanded = isCustoVidaExpanded,
                 iconsWithInitials = listOf(
                     ErrorRed to "S",
                     Color.Magenta to "D",
@@ -206,22 +210,34 @@ fun HomeScreen(
         DashboardCard(
             onClick = { isDiarioExpanded = !isDiarioExpanded }
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column {
-                    Text(stringResource(R.string.home_daily_average), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
-                                            Box(modifier = Modifier.size(20.dp).background(Color.Magenta, CircleShape), contentAlignment = Alignment.Center) {
-                                                Text(
-                                                    text = "D",
-                                                    color = Color.Black,
-                                                    fontSize = 14.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    textAlign = TextAlign.Center,
-                                                    modifier = Modifier.align(Alignment.Center)
-                                                )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    Column {
+                        Text(stringResource(R.string.home_daily_average), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+                                                Box(modifier = Modifier.size(20.dp).background(Color.Magenta, CircleShape), contentAlignment = Alignment.Center) {
+                                                    Text(
+                                                        text = "D",
+                                                        color = Color.Black,
+                                                        fontSize = 14.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        textAlign = TextAlign.Center,
+                                                        modifier = Modifier.align(Alignment.Center)
+                                                    )
+                                                }
+                                                Text(" / O", style = MaterialTheme.typography.bodySmall, color = TextSecondary, modifier = Modifier.padding(start = 8.dp))
                                             }
-                                            Text(" / O", style = MaterialTheme.typography.bodySmall, color = TextSecondary, modifier = Modifier.padding(start = 8.dp))
-                                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.width(8.dp))
+                    
+                    val rotation by animateFloatAsState(if (isDiarioExpanded) 180f else 0f)
+                    Icon(
+                        Icons.Default.ExpandMore,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(20.dp).graphicsLayer(rotationZ = rotation)
+                    )
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
@@ -318,11 +334,24 @@ fun DashboardMetricRow(
     value: Double,
     status: String,
     color: Color,
+    isExpanded: Boolean = false,
     iconsWithInitials: List<Pair<Color, String>> = emptyList()
 ) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(8.dp))
+                
+                val rotation by animateFloatAsState(if (isExpanded) 180f else 0f)
+                Icon(
+                    Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = TextSecondary,
+                    modifier = Modifier.size(20.dp).graphicsLayer(rotationZ = rotation)
+                )
+            }
+            
             if (iconsWithInitials.isNotEmpty()) {
                 Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     iconsWithInitials.forEach { (dotColor, initial) ->

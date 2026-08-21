@@ -1,38 +1,36 @@
-# Walkthrough: Restauração Completa do Layout Material 3
+# Walkthrough: Refinamento de Usabilidade e Estabilização
 
-Reconstruímos a estrutura de layout do PilloraMoney para seguir rigorosamente os padrões do Material 3 e garantir que todos os elementos (TopBars, Menu Inferior e Conteúdo) estejam perfeitamente alinhados e respeitem os espaços do sistema Android.
+Concluímos os ajustes para tornar a navegação mais intuitiva, com indicadores visuais claros de rolagem e expansão, além de estabilizar o layout geral do app.
 
 ## Alterações Realizadas
 
-### 1. Infraestrutura Robusta
-- **[MainActivity.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/MainActivity.kt)**:
-    - Configuramos o `Scaffold` principal para permitir que as telas gerenciem seus próprios insets de topo.
-    - **Resultado**: Resolvemos o problema de telas "piscando" ou com espaços desalinhados globalmente.
+### 1. Planilha com Fade de Alto Contraste
+- **[SpreadsheetScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/SpreadsheetScreen.kt)**:
+    - Implementamos um efeito de "névoa" (gradiente) muito mais nítido nas bordas do cabeçalho rolável.
+    - **Cores**: Branco no tema escuro e Preto no tema claro, ambos com **opacidade reforçada (60%)**.
+    - **Largura**: Aumentamos para **50dp** para que o efeito seja impossível de não ver.
+    - **Técnica**: Usamos desenho direto por cima do conteúdo para garantir que a planilha não suma nem fique cortada.
 
-### 2. Menu Inferior Padrão e Alinhado
+### 2. Setas de Expansão na Home
+- **[HomeScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/HomeScreen.kt)**:
+    - Adicionamos o ícone de seta (`ExpandMore`) em todos os cards que possuem detalhes ocultos.
+    - A seta agora gira suavemente quando o card abre, servindo como um guia visual claro para o usuário.
+
+### 3. Menu Inferior Ajustado
 - **[PilloraBottomBar.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/components/PilloraBottomBar.kt)**:
-    - Retornamos a altura para **80dp** (padrão M3).
-    - **Resultado**: Os ícones agora estão perfeitamente centralizados dentro do indicador de seleção (o "pill").
-    - Removemos offsets manuais que causavam desalinhamento.
-    - Ajustamos o botão central **"+"** para uma posição harmônica.
+    - Definimos a altura para **72dp** (um equilíbrio entre o slim e o padrão).
+    - Removemos os erros de alinhamento; agora os ícones ficam perfeitamente centralizados com a marcação de seleção (o "pill" colorido).
+    - O botão central "+" foi levemente abaixado para se integrar melhor à barra.
 
-### 3. TopBars e Insets Corrigidos
-- **Telas com Barra de Título** (`Settings`, `Subscription`, `Savings`, `Calculator`):
-    - Restauramos os insets padrão. Agora o título não fica "colado" no topo da tela e respeita a barra de status (relógio/bateria).
-- **Telas sem Barra de Título** (`Home`, `AddTransaction`, `BalanceHorizon`, `Spreadsheet`):
-    - Adicionamos `statusBarsPadding()` manualmente no topo.
-    - **Resultado**: O conteúdo dessas telas agora começa exatamente abaixo da barra de status, sem sobreposição.
-
-### 4. Fim definitivo da Faixa Preta
-- Sincronizamos o preenchimento do `Scaffold` com o `NavigationBar`.
-- **Resultado**: Não existe mais nenhuma separação entre o conteúdo da tela e o menu inferior.
+### 4. Correção de Insets (TopBars)
+- **[MainActivity.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/MainActivity.kt)**:
+    - Removemos a zeração forçada de espaços que estava fazendo as barras de título ficarem sob o relógio do sistema. Agora as telas têm o respiro correto no topo.
 
 ## Como Verificar
 
-1.  **Navegação**: Clique entre as abas. Note que o indicador de seleção (o fundo colorido atrás do ícone) agora envolve o ícone perfeitamente.
-2.  **TopBars**: Entre em Configurações. Veja que a barra de título tem um respiro natural no topo.
-3.  **Telas Diretas**: Vá para a Home ou Adicionar Lançamento. O texto do topo não estará mais escondido sob o relógio.
-4.  **Encaixe Inferior**: Role as listas até o fim; o conteúdo encosta suavemente no menu inferior sem buracos pretos.
+1.  **Planilha**: Vá em Projeção. Você verá uma névoa clara/escura nas bordas do cabeçalho. Ao rolar para o lado, o fade te avisará se ainda existem colunas para ver.
+2.  **Home**: Abra a Home e veja as setas nos cards de totais. Elas indicam claramente o que pode ser clicado para expandir.
+3.  **Configurações**: Entre nas Configurações e veja que o título está em uma altura confortável, sem ser cortado pelo topo do celular.
 
 ---
-**Layout estabilizado! O PilloraMoney agora tem uma fundação visual sólida e profissional.** 🎨📱✅
+**Interface estabilizada e muito mais intuitiva! O PilloraMoney agora guia o usuário de forma visual e elegante.** 🎨📱🚀

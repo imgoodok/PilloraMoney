@@ -1,9 +1,12 @@
-# Tarefas: Reconstrução de Layout Padrão (M3)
+# Tarefas: Melhorias Visuais e Correção de Layout
 
-- [x] Restaurar `MainActivity.kt` para Scaffold padrão
-- [x] Restaurar `PilloraBottomBar.kt` para NavigationBar padrão (80dp)
-    - [x] Remover Box extra ou simplificar offsets
-    - [x] Garantir alinhamento de ícones e indicadores
-- [x] Ajustar Insets de Tela
-    - [x] Adicionar `statusBarsPadding()` apenas em telas sem TopAppBar
-- [x] Verificação Visual
+- [/] Estabilizar Layout Global (`MainActivity.kt`)
+    - [ ] Remover `contentWindowInsets = WindowInsets(0.dp)`
+- [/] Ajustar Menu Inferior (`PilloraBottomBar.kt`)
+    - [ ] Altura: 72dp
+    - [ ] Remover offsets manuais de ícones
+- [/] Implementar Fade de Alto Contraste (`SpreadsheetScreen.kt`)
+    - [ ] Usar `Color.White` (Dark) / `Color.Black` (Light)
+    - [ ] Largura: 50dp
+- [/] Finalizar Setas de Expansão (`HomeScreen.kt`)
+    - [ ] Verificar cards de Performance, Custo de Vida e Diário

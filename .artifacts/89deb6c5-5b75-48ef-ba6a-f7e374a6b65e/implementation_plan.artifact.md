@@ -1,39 +1,40 @@
-# Ajustes Finos de UI: TopBars, Menu Inferior e Insets
+# Plano de Correção Visual: Fade da Planilha e Setas da Home
 
-Este plano visa corrigir o posicionamento das TopBars em telas específicas, reduzir o tamanho do menu inferior e eliminar espaços indesejados entre os componentes.
+Este plano detalha as correções para tornar o efeito de "fade" na planilha realmente visível e garantir que as setas de expansão na Home estejam perfeitas, além de estabilizar o layout geral.
 
 ## User Review Required
 
-> [!NOTE]
-> Vou reduzir a altura padrão do menu inferior para deixá-lo mais compacto e ajustar os offsets do botão "+" e dos ícones conforme solicitado.
+> [!IMPORTANT]
+> Vou usar uma técnica de gradiente com cores sólidas (Branco/Preto) e opacidade alta para garantir que o fade seja notado.
 >
-> Para as TopBars, removerei os insets automáticos que as deixavam "baixas" (com muito espaço no topo) para alinhar com o estilo das outras telas.
+> Vou reverter ajustes de insets que causaram o desaparecimento da planilha e as TopBars desalinhadas.
 
 ## Proposed Changes
 
-### 1. Ajuste de Telas (TopBars)
+### 1. Tela de Planilha (Efeito Fade)
 
-#### [MODIFY] [SettingsScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/SettingsScreen.kt)
-- Adicionar `windowInsets = WindowInsets(0.dp)` no `TopAppBar` para remover o preenchimento automático da barra de status que a deixava baixa.
+#### [MODIFY] [SpreadsheetScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/SpreadsheetScreen.kt)
+- **Fade de Alto Contraste**: Usar `Color.White.copy(alpha = 0.6f)` no modo Dark e `Color.Black.copy(alpha = 0.4f)` no modo Light.
+- **Largura do Fade**: Definir como `50.dp` para ser bem perceptível.
+- **Z-Index**: Garantir que o fade seja desenhado *após* o conteúdo do cabeçalho.
 
-#### [MODIFY] [SubscriptionScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/SubscriptionScreen.kt)
-- Adicionar `windowInsets = WindowInsets(0.dp)` no `TopAppBar`.
+### 2. Tela Home (Setas de Expansão)
 
-### 2. Menu Inferior (PilloraBottomBar)
+#### [MODIFY] [HomeScreen.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/screens/HomeScreen.kt)
+- Garantir que o ícone `ExpandMore` esteja presente e alinhado corretamente à direita ou ao lado do título em todos os cards que possuem `AnimatedVisibility`.
 
-#### [MODIFY] [PilloraBottomBar.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/components/PilloraBottomBar.kt)
-- Reduzir a altura da `NavigationBar` para `64.dp`.
-- Ajustar o offset do `FloatingActionButton` (botão "+") para `y = (-12).dp` (abaixando-o).
-- Ajustar o offset dos ícones (`BottomNavItem`) para `y = (-10).dp` (subindo-os dentro da barra menor).
-
-### 3. Ajuste de Insets e Espaços (PilloraApp)
+### 3. Estabilização de Layout (Insets)
 
 #### [MODIFY] [MainActivity.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/MainActivity.kt)
-- No `Scaffold` principal do `PilloraApp`, adicionar `contentWindowInsets = WindowInsets(0.dp)` para garantir que o conteúdo fique "rente" ao menu inferior sem a faixa preta.
+- Remover `contentWindowInsets = WindowInsets(0.dp)` que está causando o corte das TopBars.
+- Definir a cor do `Scaffold` como `MaterialTheme.colorScheme.background` para eliminar qualquer faixa preta residual.
+
+#### [MODIFY] [PilloraBottomBar.kt](file:///C:/Users/USUARIO/Desktop/GitHub Repository/PilloraMoney/app/src/main/java/com/example/pilloramoney/ui/components/PilloraBottomBar.kt)
+- Ajustar altura para **72dp** e remover deslocamentos manuais dos ícones para que o indicador (pill) fique centralizado.
 
 ## Verification Plan
 
 ### Manual Verification
-1. Abrir a tela de Configurações e Assinatura: Verificar se a TopBar subiu e está alinhada com o topo (respeitando apenas o necessário).
-2. Observar a parte inferior de qualquer tela: Garantir que não existe uma faixa preta entre o conteúdo e o menu.
-3. Verificar o menu inferior: Confirmar que está mais fino, com o botão "+" mais baixo e os ícones mais altos.
+1. **Planilha**: Abrir a tela e ver se as bordas do cabeçalho rolável têm uma "névoa" clara/escura bem visível.
+2. **Home**: Verificar se as setas aparecem em Performance, Custo de Vida e Diário Médio.
+3. **Layout**: Garantir que o título "Configurações" e "Assinatura" não estejam colados no topo do celular.
