@@ -15,7 +15,8 @@ import javax.inject.Singleton
 class SubscriptionRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val authRepository: AuthRepository
-) {
+)
+{
     private val userId: String?
         get() = authRepository.currentUser?.uid
 
