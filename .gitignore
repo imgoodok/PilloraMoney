@@ -1,15 +1,43 @@
+# Build Objects
+.gradle/
+build/
+app/build/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+
+# IDE - Android Studio
+.idea/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/modules.xml
+.idea/navEditor.xml
+*.iws
+
+# Local configuration file (contains sensitive info)
 local.properties
+
+# Log Files
+*.log
+
+# Android Studio - Device and Emulator
+captures/
+.externalNativeBuild/
+.cxx/
+cmake-build-*/
+
+# Keystores
+*.jks
+*.keystore
+*.p12
+
+# Google Services
+# Keep google-services.json if you want it in VCS, but usually better to ignore if private
+# google-services.json
+
+# OS related
+.DS_Store
+Thumbs.db

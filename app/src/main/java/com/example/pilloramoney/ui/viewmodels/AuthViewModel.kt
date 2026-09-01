@@ -6,6 +6,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pilloramoney.auth.CredentialManagerHelper
+import com.example.pilloramoney.auth.RestoreCredentialHelper
 import com.example.pilloramoney.data.repository.AuthRepository
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseUser
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val credentialManagerHelper: CredentialManagerHelper
+    private val credentialManagerHelper: CredentialManagerHelper,
+    private val restoreCredentialHelper: RestoreCredentialHelper
 ) : ViewModel() {
 
     val currentUser: StateFlow<FirebaseUser?> = authRepository.authStateFlow()
@@ -35,7 +37,13 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             val result = authRepository.signInWithEmail(email, password)
-            _authState.value = if (result.isSuccess) AuthState.Success else AuthState.Error(result.exceptionOrNull()?.message ?: "Erro desconhecido")
+            if (result.isSuccess) {
+                _authState.value = AuthState.Success
+                // TODO: Obter requestJson do seu servidor para criar a chave de restauração
+                // restoreCredentialHelper.createRestoreKey(context, "SUA_JSON_AQUI")
+            } else {
+                _authState.value = AuthState.Error(result.exceptionOrNull()?.message ?: "Erro desconhecido")
+            }
         }
     }
 
@@ -64,7 +72,13 @@ class AuthViewModel @Inject constructor(
                     val firebaseCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
                     
                     val authResult = authRepository.signInWithCredential(firebaseCredential)
-                    _authState.value = if (authResult.isSuccess) AuthState.Success else AuthState.Error(authResult.exceptionOrNull()?.message ?: "Erro no Firebase")
+                    if (authResult.isSuccess) {
+                        _authState.value = AuthState.Success
+                        // TODO: Obter requestJson do seu servidor para criar a chave de restauração
+                        // restoreCredentialHelper.createRestoreKey(context, "SUA_JSON_AQUI")
+                    } else {
+                        _authState.value = AuthState.Error(authResult.exceptionOrNull()?.message ?: "Erro no Firebase")
+                    }
                 } else {
                     _authState.value = AuthState.Error("Tipo de credencial inválido")
                 }
@@ -76,8 +90,21 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun signOut() {
-        authRepository.signOut()
+    fun signOut(context: Context) {
+        viewModelScope.launch {
+            authRepository.signOut()
+            restoreCredentialHelper.clearRestoreKey(context)
+        }
+    }
+
+    fun trySilentRestoreLogin(context: Context) {
+        viewModelScope.launch {
+            // TODO: Obter authenticationJson do seu servidor
+            // val restoreJson = restoreCredentialHelper.getRestoreKey(context, "SUA_JSON_AQUI")
+            // if (restoreJson != null) {
+            //     // Realizar login no Firebase com o token restaurado
+            // }
+        }
     }
 
     fun resetState() {

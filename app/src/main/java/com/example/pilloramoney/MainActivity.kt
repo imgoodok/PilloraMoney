@@ -162,6 +162,7 @@ fun PilloraApp(
     isUserLoggedIn: Boolean,
     authViewModel: AuthViewModel
 ) {
+    val context = LocalContext.current
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -231,7 +232,7 @@ fun PilloraApp(
                 },
                 closeDrawer = { scope.launch { drawerState.close() } },
                 onLogout = {
-                    authViewModel.signOut()
+                    authViewModel.signOut(context)
                     scope.launch { drawerState.close() }
                 }
             )
@@ -305,7 +306,7 @@ fun PilloraApp(
                             currentLanguage = currentLanguage,
                             onLanguageChange = onLanguageChange,
                             onBack = { navController.popBackStack() },
-                            onLogout = { authViewModel.signOut() }
+                            onLogout = { authViewModel.signOut(context) }
                         )
                     }
                     composable<Screen.Subscription> {
