@@ -39,4 +39,19 @@ sealed class Screen {
 
     @Serializable
     data object Downgrade : Screen()
+
+    @Serializable
+    data object Community : Screen()
+
+    @Serializable
+    data object CreateCommunity : Screen()
+
+    @Serializable
+    data object CommunityBrowse : Screen()
+
+    @Serializable
+    data object CommunityProfile : Screen()
+
+    @Serializable
+    data class CommunityDetail(val communityId: String) : Screen()
 }

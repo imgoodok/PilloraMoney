@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.pilloramoney.R
 import androidx.compose.ui.unit.sp
 import com.example.pilloramoney.navigation.Screen
@@ -25,6 +26,7 @@ import com.example.pilloramoney.ui.theme.*
 @Composable
 fun PilloraDrawer(
     userEmail: String,
+    userPhotoUrl: String? = null,
     onNavigate: (Any) -> Unit,
     closeDrawer: () -> Unit,
     onLogout: () -> Unit
@@ -49,12 +51,20 @@ fun PilloraDrawer(
                     color = MaterialTheme.colorScheme.primary
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = if (userEmail.isNotEmpty()) userEmail.take(1).uppercase() else "P",
-                            color = Color.White,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        if (userPhotoUrl != null && userPhotoUrl.isNotEmpty()) {
+                            AsyncImage(
+                                model = userPhotoUrl,
+                                contentDescription = "Foto de Perfil",
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Text(
+                                text = if (userEmail.isNotEmpty()) userEmail.take(1).uppercase() else "P",
+                                color = Color.White,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))

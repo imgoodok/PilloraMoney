@@ -51,12 +51,12 @@ fun PilloraBottomBar(
             // Middle Gap for FAB
             Spacer(modifier = Modifier.weight(1f))
 
-            // Screen.Calculator
+            // Screen.Community
             BottomNavItem(
-                icon = Icons.Default.Calculate,
-                label = "Cálculo",
-                isSelected = currentRoute?.contains("Calculator") == true,
-                onClick = { onNavigate(Screen.Calculator) }
+                icon = Icons.Default.Groups,
+                label = "Comunidade",
+                isSelected = currentRoute?.contains("Community") == true,
+                onClick = { onNavigate(Screen.Community) }
             )
 
             // Screen.BalanceHorizon
