@@ -12,7 +12,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.pilloramoney.R
@@ -47,7 +50,6 @@ fun SpreadsheetScreen(
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 
     val horizontalScrollState = rememberScrollState()
-    // Localized currency formatter without the "R$" symbol for table density
     val currencyFormat = remember(locale) { NumberFormat.getNumberInstance(locale).apply { 
         minimumFractionDigits = 2 
         maximumFractionDigits = 2
@@ -103,7 +105,6 @@ fun SpreadsheetScreen(
                     cal.get(Calendar.DAY_OF_MONTH) == day
                 }
                 
-                // Logic: In - (Out + Daily + Savings). Ignore Card (Cartão) per request for balance.
                 val dayIn = dayTransactions.filter { it.type == TransactionType.ENTRADA }.sumOf { it.value }
                 val dayOut = dayTransactions.filter { 
                     it.type == TransactionType.SAIDA || 
@@ -155,6 +156,11 @@ fun SpreadsheetScreen(
 
 @Composable
 fun CompactSpreadsheetHeader(scrollState: ScrollState) {
+    val density = LocalDensity.current
+    val fadeWidthPx = with(density) { 40.dp.toPx() }
+    // Using onSurface ensures contrast in both Light and Dark modes
+    val fadeColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -176,16 +182,49 @@ fun CompactSpreadsheetHeader(scrollState: ScrollState) {
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
         
-        Row(
+        Box(
             modifier = Modifier
                 .weight(1f)
-                .horizontalScroll(scrollState)
+                .drawWithContent {
+                    drawContent()
+                    
+                    // Left Fade
+                    if (scrollState.value > 0) {
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(fadeColor, Color.Transparent),
+                                startX = 0f,
+                                endX = fadeWidthPx
+                            ),
+                            size = size.copy(width = fadeWidthPx)
+                        )
+                    }
+                    
+                    // Right Fade
+                    if (scrollState.value < scrollState.maxValue) {
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(Color.Transparent, fadeColor),
+                                startX = size.width - fadeWidthPx,
+                                endX = size.width
+                            ),
+                            topLeft = androidx.compose.ui.geometry.Offset(size.width - fadeWidthPx, 0f),
+                            size = size.copy(width = fadeWidthPx)
+                        )
+                    }
+                }
         ) {
-            HeaderCell(stringResource(R.string.spreadsheet_in))
-            HeaderCell(stringResource(R.string.spreadsheet_out))
-            HeaderCell(stringResource(R.string.spreadsheet_daily))
-            HeaderCell(stringResource(R.string.spreadsheet_savings))
-            HeaderCell(stringResource(R.string.spreadsheet_card))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(scrollState)
+            ) {
+                HeaderCell(stringResource(R.string.spreadsheet_in))
+                HeaderCell(stringResource(R.string.spreadsheet_out))
+                HeaderCell(stringResource(R.string.spreadsheet_daily))
+                HeaderCell(stringResource(R.string.spreadsheet_savings))
+                HeaderCell(stringResource(R.string.spreadsheet_card))
+            }
         }
 
         VerticalDivider(
@@ -232,7 +271,6 @@ fun CompactSpreadsheetRow(
             .height(52.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Fixed Day
         Box(
             modifier = Modifier.width(40.dp).fillMaxHeight(),
             contentAlignment = Alignment.Center
@@ -251,7 +289,6 @@ fun CompactSpreadsheetRow(
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
 
-        // Scrollable Values
         Row(
             modifier = Modifier
                 .weight(1f)
@@ -272,7 +309,6 @@ fun CompactSpreadsheetRow(
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
 
-        // Fixed Saldo
         Box(
             modifier = Modifier.width(100.dp).padding(end = 8.dp).fillMaxHeight(),
             contentAlignment = Alignment.CenterEnd

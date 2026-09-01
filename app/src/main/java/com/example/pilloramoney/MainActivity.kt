@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.pilloramoney.navigation.Screen
 import com.example.pilloramoney.notifications.NotificationScheduler
 import com.example.pilloramoney.notifications.PilloraNotificationManager
@@ -54,8 +56,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        PilloraNotificationManager.createNotificationChannel(this)
-        checkNotificationPermission()
+        try {
+            PilloraNotificationManager.createNotificationChannel(this)
+            checkNotificationPermission()
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Erro ao iniciar notificações: ${e.message}")
+        }
         handleDeepLink(intent)
 
         setContent {
@@ -213,8 +219,10 @@ fun PilloraApp(
         drawerState = drawerState,
         gesturesEnabled = isUserLoggedIn,
         drawerContent = {
+            val user = authViewModel.currentUser.collectAsState().value
             PilloraDrawer(
-                userEmail = authViewModel.currentUser.collectAsState().value?.email ?: "",
+                userEmail = user?.email ?: "",
+                userPhotoUrl = user?.photoUrl?.toString(),
                 onNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(navController.graph.startDestinationId)
@@ -314,6 +322,46 @@ fun PilloraApp(
                                 subscriptionViewModel.updateSubscription(com.example.pilloramoney.data.model.SubscriptionStatus.FREE)
                                 navController.navigate(Screen.Home) { popUpTo(Screen.Home) { inclusive = true } }
                             }
+                        )
+                    }
+                    composable<Screen.Community> {
+                        if (subscription.status == com.example.pilloramoney.data.model.SubscriptionStatus.PREMIUM) {
+                            CommunityScreen(
+                                onNavigateToCreate = { navController.navigate(Screen.CreateCommunity) },
+                                onNavigateToBrowse = { navController.navigate(Screen.CommunityBrowse) },
+                                onNavigateToProfile = { navController.navigate(Screen.CommunityProfile) }
+                            )
+                        } else {
+                            // Placeholder UI while navigating
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
+                            }
+                            LaunchedEffect(Unit) {
+                                navController.navigate(Screen.Subscription) {
+                                    popUpTo(Screen.Home)
+                                }
+                            }
+                        }
+                    }
+                    composable<Screen.CreateCommunity> {
+                        CreateCommunityScreen(onBack = { navController.popBackStack() })
+                    }
+                    composable<Screen.CommunityBrowse> {
+                        CommunityBrowseScreen(
+                            onBack = { navController.popBackStack() },
+                            onCommunityClick = { id -> 
+                                navController.navigate(Screen.CommunityDetail(id))
+                            }
+                        )
+                    }
+                    composable<Screen.CommunityProfile> {
+                        CommunityProfileScreen(onBack = { navController.popBackStack() })
+                    }
+                    composable<Screen.CommunityDetail> { backStackEntry ->
+                        val detail: Screen.CommunityDetail = backStackEntry.toRoute()
+                        CommunityDetailScreen(
+                            communityId = detail.communityId,
+                            onBack = { navController.popBackStack() }
                         )
                     }
                 }
