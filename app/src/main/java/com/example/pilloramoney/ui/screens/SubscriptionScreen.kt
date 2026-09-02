@@ -36,6 +36,7 @@ fun SubscriptionScreen(
 ) {
     val subscription by viewModel.subscriptionStatus.collectAsState()
     val isSyncing by viewModel.isSyncing.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Scaffold(
         topBar = {
@@ -94,7 +95,7 @@ fun SubscriptionScreen(
                     Benefit(stringResource(R.string.sub_feat_local_only), false, true),
                     Benefit(stringResource(R.string.sub_feat_ads), false, true)
                 ),
-                onSelect = { viewModel.updateSubscription(SubscriptionStatus.FREE) }
+                onSelect = { viewModel.updateSubscription(SubscriptionStatus.FREE, context) }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -111,14 +112,14 @@ fun SubscriptionScreen(
                     Benefit(stringResource(R.string.sub_feat_no_ads), true),
                     Benefit(stringResource(R.string.sub_feat_priority_support), true)
                 ),
-                onSelect = { viewModel.updateSubscription(SubscriptionStatus.PREMIUM) }
+                onSelect = { viewModel.updateSubscription(SubscriptionStatus.PREMIUM, context) }
             )
             
             Spacer(modifier = Modifier.height(40.dp))
             
             if (subscription.status == SubscriptionStatus.PREMIUM) {
                 Button(
-                    onClick = { viewModel.updateSubscription(SubscriptionStatus.EXPIRED) },
+                    onClick = { viewModel.updateSubscription(SubscriptionStatus.EXPIRED, context) },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text(stringResource(R.string.sub_simulate_downgrade))

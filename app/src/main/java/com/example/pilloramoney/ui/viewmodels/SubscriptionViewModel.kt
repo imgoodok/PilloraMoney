@@ -37,16 +37,33 @@ class SubscriptionViewModel @Inject constructor(
         }
     }
 
-    fun updateSubscription(status: SubscriptionStatus) {
+    fun updateSubscription(status: SubscriptionStatus, context: android.content.Context? = null) {
         viewModelScope.launch {
-            _isSyncing.value = true
-            subscriptionRepository.updateSubscriptionStatus(status)
-            
-            if (status == SubscriptionStatus.PREMIUM) {
-                syncRepository.syncAllLocalDataToCloud()
+            try {
+                _isSyncing.value = true
+                android.util.Log.d("SubscriptionVM", "Updating subscription to $status")
+                subscriptionRepository.updateSubscriptionStatus(status)
+                
+                if (status == SubscriptionStatus.PREMIUM) {
+                    android.util.Log.d("SubscriptionVM", "Syncing data to cloud...")
+                    try {
+                        syncRepository.syncAllLocalDataToCloud()
+                    } catch (e: Exception) {
+                        android.util.Log.e("SubscriptionVM", "Sync failed, but subscription might be updated: ${e.message}")
+                    }
+                }
+                android.util.Log.d("SubscriptionVM", "Update completed successfully")
+                context?.let {
+                    android.widget.Toast.makeText(it, "Plano atualizado para $status!", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("SubscriptionVM", "Error updating subscription: ${e.message}", e)
+                context?.let {
+                    android.widget.Toast.makeText(it, "Erro ao atualizar: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                }
+            } finally {
+                _isSyncing.value = false
             }
-            
-            _isSyncing.value = false
         }
     }
 }

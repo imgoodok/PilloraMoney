@@ -174,10 +174,15 @@ fun PilloraApp(
     val subscription by subscriptionViewModel.subscriptionStatus.collectAsState()
 
     // Proteção de Rotas: Redirecionar para Login se não estiver logado
-    LaunchedEffect(isUserLoggedIn) {
+    LaunchedEffect(isUserLoggedIn, navController.currentBackStackEntry) {
+        val hasGraph = try { navController.graph; true } catch (e: Exception) { false }
+        if (!hasGraph) return@LaunchedEffect
+
         if (!isUserLoggedIn) {
-            navController.navigate(Screen.Login) {
-                popUpTo(0) { inclusive = true }
+            if (currentDestination?.contains("Login") != true && currentDestination?.contains("Register") != true) {
+                navController.navigate(Screen.Login) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
         } else if (currentDestination?.contains("Login") == true || currentDestination?.contains("Register") == true) {
             navController.navigate(Screen.Home) {
